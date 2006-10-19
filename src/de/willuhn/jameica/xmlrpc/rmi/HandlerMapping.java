@@ -1,12 +1,12 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/rmi/Attic/LookupService.java,v $
+ * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/rmi/Attic/HandlerMapping.java,v $
  * $Revision: 1.1 $
- * $Date: 2006/10/19 15:27:01 $
+ * $Date: 2006/10/19 16:08:30 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
  *
- * Copyright (c) by  bbv AG
+ * Copyright (c) by willuhn.webdesign
  * All rights reserved
  *
  **********************************************************************/
@@ -16,19 +16,18 @@ package de.willuhn.jameica.xmlrpc.rmi;
 import de.willuhn.datasource.Service;
 
 /**
- * Dieses Interface ist dafuer zustaendig, die via XML-RPC
- * verfuegbar zu machenden Plugins zu ermitteln.
+ * Mappt die Objekte auf die Klassen.
  * @author willuhn
  */
-public interface LookupService extends Service
+public interface HandlerMapping extends Service //, XmlRpcHandlerMapping
 {
-
+  
 }
 
 
 /*********************************************************************
- * $Log: LookupService.java,v $
- * Revision 1.1  2006/10/19 15:27:01  willuhn
- * @N initial checkin
+ * $Log: HandlerMapping.java,v $
+ * Revision 1.1  2006/10/19 16:08:30  willuhn
+ * *** empty log message ***
  *
  *********************************************************************/

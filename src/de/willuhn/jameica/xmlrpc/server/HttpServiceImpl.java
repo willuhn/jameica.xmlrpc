@@ -1,12 +1,12 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/HttpServiceImpl.java,v $
- * $Revision: 1.1 $
- * $Date: 2006/10/19 15:27:01 $
+ * $Revision: 1.2 $
+ * $Date: 2006/10/19 16:08:30 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
  *
- * Copyright (c) by  bbv AG
+ * Copyright (c) by willuhn.webdesign
  * All rights reserved
  *
  **********************************************************************/
@@ -16,16 +16,24 @@ package de.willuhn.jameica.xmlrpc.server;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+import org.apache.xmlrpc.server.XmlRpcServer;
+import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
+import org.apache.xmlrpc.webserver.WebServer;
+
+import de.willuhn.jameica.system.Application;
+import de.willuhn.jameica.system.Settings;
+import de.willuhn.jameica.xmlrpc.Plugin;
+import de.willuhn.jameica.xmlrpc.rmi.HandlerMapping;
 import de.willuhn.logging.Logger;
 
 /**
  * @author willuhn
  */
 public class HttpServiceImpl extends UnicastRemoteObject implements
-    de.willuhn.jameica.xmlrpc.rmi.HttpsService
+    de.willuhn.jameica.xmlrpc.rmi.HttpService
 {
 
-  private boolean started = false;
+  private WebServer server = null;
   
   /**
    * @throws RemoteException
@@ -41,7 +49,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
    */
   public String getName() throws RemoteException
   {
-    return "HTTPS listener";
+    return "HTTP Listener";
   }
 
   /**
@@ -49,7 +57,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
    */
   public boolean isStartable() throws RemoteException
   {
-    return !started;
+    return server == null;
   }
 
   /**
@@ -57,7 +65,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
    */
   public boolean isStarted() throws RemoteException
   {
-    return started;
+    return server != null;
   }
 
   /**
@@ -70,7 +78,30 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
       Logger.warn("service not startable or allready started, skipping request");
       return;
     }
-    started = true;
+
+    try
+    {
+      Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
+      HandlerMapping mapping = (HandlerMapping) Application.getServiceFactory().lookup(Plugin.class,"handler.mapping");
+      
+      this.server = new WebServer(settings.getInt("listener.http.port",8080));
+      
+      XmlRpcServer xmlRpcServer = this.server.getXmlRpcServer();
+    
+      //xmlRpcServer.setHandlerMapping(mapping);
+    
+      XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
+      serverConfig.setEnabledForExtensions(true);
+      serverConfig.setContentLengthOptional(false);
+
+      this.server.start();
+    }
+    catch (Exception e)
+    {
+      this.server = null;
+      Logger.error("unable to start http listener",e);
+      throw new RemoteException("unable to start http listener",e);
+    }
   }
 
   /**
@@ -83,7 +114,15 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
       Logger.warn("service not started, skipping request");
       return;
     }
-    started = false;
+    try
+    {
+      this.server.shutdown();
+    }
+    finally
+    {
+      this.server = null;
+    }
+    
   }
 
 }
@@ -91,6 +130,9 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
 
 /*********************************************************************
  * $Log: HttpServiceImpl.java,v $
+ * Revision 1.2  2006/10/19 16:08:30  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2006/10/19 15:27:01  willuhn
  * @N initial checkin
  *
