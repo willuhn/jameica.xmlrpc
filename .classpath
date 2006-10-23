@@ -5,11 +5,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jameica"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/ws-commons-util-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-client-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-client-3.0-sources.jar"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-common-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-common-3.0-sources.jar"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-server-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-server-3.0-sources.jar"/>
+	<classpathentry sourcepath="lib.src/xmlrpc-client-3.0-sources.jar" kind="lib" path="lib/xmlrpc-client-3.0.jar"/>
+	<classpathentry sourcepath="lib.src/xmlrpc-common-3.0-sources.jar" kind="lib" path="lib/xmlrpc-common-3.0.jar"/>
+	<classpathentry sourcepath="lib.src/xmlrpc-server-3.0-sources.jar" kind="lib" path="lib/xmlrpc-server-3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

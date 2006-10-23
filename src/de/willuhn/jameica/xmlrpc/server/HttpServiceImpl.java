@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/HttpServiceImpl.java,v $
- * $Revision: 1.2 $
- * $Date: 2006/10/19 16:08:30 $
+ * $Revision: 1.3 $
+ * $Date: 2006/10/23 23:07:28 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -23,7 +23,6 @@ import org.apache.xmlrpc.webserver.WebServer;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.jameica.xmlrpc.Plugin;
-import de.willuhn.jameica.xmlrpc.rmi.HandlerMapping;
 import de.willuhn.logging.Logger;
 
 /**
@@ -82,13 +81,11 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
     try
     {
       Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
-      HandlerMapping mapping = (HandlerMapping) Application.getServiceFactory().lookup(Plugin.class,"handler.mapping");
       
       this.server = new WebServer(settings.getInt("listener.http.port",8080));
       
       XmlRpcServer xmlRpcServer = this.server.getXmlRpcServer();
-    
-      //xmlRpcServer.setHandlerMapping(mapping);
+      xmlRpcServer.setHandlerMapping(new HandlerMappingImpl());
     
       XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
       serverConfig.setEnabledForExtensions(true);
@@ -130,6 +127,9 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
 
 /*********************************************************************
  * $Log: HttpServiceImpl.java,v $
+ * Revision 1.3  2006/10/23 23:07:28  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.2  2006/10/19 16:08:30  willuhn
  * *** empty log message ***
  *

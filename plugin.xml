@@ -13,9 +13,8 @@
   </classfinder>
 
   <services>
-    <service name="handler.mapping" depends=""                autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.HandlerMapping" />
-    <service name="listener.http"   depends="handler.mapping" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.HttpService" />
-    <service name="listener.https"  depends="handler.mapping" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.HttpsService" />
+    <service name="listener.http"  depends="" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.HttpService" />
+    <service name="listener.https" depends="" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.HttpsService" />
   </services>
 
   <extensions>
