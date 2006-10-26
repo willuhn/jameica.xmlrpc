@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/HttpServiceImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2006/10/23 23:07:28 $
+ * $Revision: 1.4 $
+ * $Date: 2006/10/26 23:54:15 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -82,7 +82,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
     {
       Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
       
-      this.server = new WebServer(settings.getInt("listener.http.port",8080));
+      this.server = new WebServer(settings.getInt("listener.http.port",8888));
       
       XmlRpcServer xmlRpcServer = this.server.getXmlRpcServer();
       xmlRpcServer.setHandlerMapping(new HandlerMappingImpl());
@@ -127,6 +127,10 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
 
 /*********************************************************************
  * $Log: HttpServiceImpl.java,v $
+ * Revision 1.4  2006/10/26 23:54:15  willuhn
+ * @N added needed jars
+ * @N first working version
+ *
  * Revision 1.3  2006/10/23 23:07:28  willuhn
  * *** empty log message ***
  *

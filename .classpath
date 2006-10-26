@@ -8,5 +8,8 @@
 	<classpathentry sourcepath="lib.src/xmlrpc-client-3.0-sources.jar" kind="lib" path="lib/xmlrpc-client-3.0.jar"/>
 	<classpathentry sourcepath="lib.src/xmlrpc-common-3.0-sources.jar" kind="lib" path="lib/xmlrpc-common-3.0.jar"/>
 	<classpathentry sourcepath="lib.src/xmlrpc-server-3.0-sources.jar" kind="lib" path="lib/xmlrpc-server-3.0.jar"/>
+	<classpathentry kind="lib" path="lib/resolver.jar"/>
+	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
