@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2006/10/26 23:54:15 $
+ * $Revision: 1.4 $
+ * $Date: 2006/10/28 01:05:37 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,17 +15,20 @@ package de.willuhn.jameica.xmlrpc.server;
 
 import java.util.Iterator;
 
+import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.XmlRpcHandler;
 import org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
+import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 
 import de.willuhn.datasource.Service;
 import de.willuhn.jameica.plugin.AbstractPlugin;
 import de.willuhn.jameica.plugin.Manifest;
+import de.willuhn.jameica.plugin.PluginLoader;
 import de.willuhn.jameica.plugin.ServiceDescriptor;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.jameica.xmlrpc.Plugin;
-import de.willuhn.jameica.xmlrpc.rmi.XmlRpcService;
 import de.willuhn.logging.Logger;
 
 /**
@@ -34,56 +37,84 @@ import de.willuhn.logging.Logger;
  */
 public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping implements XmlRpcHandlerMapping
 {
+  private boolean initialized = false;
+
   /**
-   * ct.
+   * Initialisiert die Handler. Allerdings nicht sofort beim Systemstart sondern erst beim ersten Zugriff.
    */
-  public HandlerMappingImpl()
+  private synchronized void init()
   {
-    Logger.info("registering XML-RPC handlers");
+    if (initialized)
+      return;
     
-    Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
-    
-    Iterator manifests = Application.getPluginLoader().getInstalledManifests();
-    while (manifests.hasNext())
+    try
     {
-      Manifest mf = (Manifest) manifests.next();
-      Logger.info("  checking plugin " + mf.getName());
+      Logger.info("registering XML-RPC handlers");
       
-      AbstractPlugin plugin = Application.getPluginLoader().getPlugin(mf.getPluginClass());
+      PluginLoader loader = Application.getPluginLoader();
+      AbstractPlugin self = loader.getPlugin(Plugin.class);
+      Iterator manifests  = loader.getInstalledManifests();
 
-      ServiceDescriptor[] services = mf.getServices();
-      for (int i=0;i<services.length;++i)
+      Settings settings   = self.getResources().getSettings();
+
+      while (manifests.hasNext())
       {
-        ServiceDescriptor service = services[i];
-        Logger.info("    checking service " + service.getName() + "[" + service.getClassname()+ "]");
-        try
+        Manifest mf                  = (Manifest) manifests.next();
+        AbstractPlugin plugin        = loader.getPlugin(mf.getPluginClass());
+        ServiceDescriptor[] services = mf.getServices();
+
+        Logger.info("  checking plugin " + mf.getName());
+
+        for (int i=0;i<services.length;++i)
         {
-          if (!settings.getBoolean(service.getClassname() + ".shared",true))
-            continue;
+          String className = services[i].getClassname();
+          String name      = services[i].getName();
 
-          Service s = Application.getServiceFactory().lookup(plugin.getClass(),service.getName());
+          Logger.info("    checking service " + name + "[" + className + "]");
+          try
+          {
+            if (!settings.getBoolean(className + ".shared",false))
+              continue;
 
-          if (!(s instanceof XmlRpcService))
-            continue;
+            Service s = Application.getServiceFactory().lookup(plugin.getClass(),name);
 
-          Logger.info("    register class " + service.getClassname());
+            Logger.info("    register class " + className);
 
-          // Wir registrieren ihn ueber sein Interface
-          registerPublicMethods(service.getClassname(), s.getClass());
-          Logger.info("    service successfully registered. URL: http://<server>/" + service.getClassname());
-        }
-        catch (Exception e)
-        {
-          Logger.error("unable to register service",e);
+            // Wir registrieren ihn nicht mit der Implementierungsklasse sondern ueber seinen Interfacenamen
+            registerPublicMethods(className, s.getClass());
+            Logger.info("    service successfully registered. URL: http://" + Application.getCallback().getHostname() + "/" + className);
+          }
+          catch (Exception e)
+          {
+            Logger.error("unable to register service",e);
+          }
         }
       }
     }
+    finally
+    {
+      initialized = true;
+    }
   }
+
+  /**
+   * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping#getHandler(java.lang.String)
+   */
+  public XmlRpcHandler getHandler(String pHandlerName) throws XmlRpcNoSuchHandlerException, XmlRpcException
+  {
+    init();
+    return super.getHandler(pHandlerName);
+  }
+  
+  
 }
 
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.4  2006/10/28 01:05:37  willuhn
+ * @N add bindings on demand
+ *
  * Revision 1.3  2006/10/26 23:54:15  willuhn
  * @N added needed jars
  * @N first working version
