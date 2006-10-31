@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/HttpServiceImpl.java,v $
- * $Revision: 1.4 $
- * $Date: 2006/10/26 23:54:15 $
+ * $Revision: 1.5 $
+ * $Date: 2006/10/31 01:43:07 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -20,9 +20,7 @@ import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
 
-import de.willuhn.jameica.system.Application;
-import de.willuhn.jameica.system.Settings;
-import de.willuhn.jameica.xmlrpc.Plugin;
+import de.willuhn.jameica.xmlrpc.Settings;
 import de.willuhn.logging.Logger;
 
 /**
@@ -80,9 +78,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
 
     try
     {
-      Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
-      
-      this.server = new WebServer(settings.getInt("listener.http.port",8888));
+      this.server = new WebServer(Settings.getPort());
       
       XmlRpcServer xmlRpcServer = this.server.getXmlRpcServer();
       xmlRpcServer.setHandlerMapping(new HandlerMappingImpl());
@@ -127,6 +123,9 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
 
 /*********************************************************************
  * $Log: HttpServiceImpl.java,v $
+ * Revision 1.5  2006/10/31 01:43:07  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.4  2006/10/26 23:54:15  willuhn
  * @N added needed jars
  * @N first working version

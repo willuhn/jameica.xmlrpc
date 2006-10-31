@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.4 $
- * $Date: 2006/10/28 01:05:37 $
+ * $Revision: 1.5 $
+ * $Date: 2006/10/31 01:43:07 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -67,22 +67,20 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
         for (int i=0;i<services.length;++i)
         {
-          String className = services[i].getClassname();
-          String name      = services[i].getName();
+          String name = mf.getName() + "." + services[i].getName();
 
-          Logger.info("    checking service " + name + "[" + className + "]");
+          Logger.info("    checking service " + name);
           try
           {
-            if (!settings.getBoolean(className + ".shared",false))
+            if (!settings.getBoolean(name + ".shared",false))
               continue;
 
-            Service s = Application.getServiceFactory().lookup(plugin.getClass(),name);
+            Service s = Application.getServiceFactory().lookup(plugin.getClass(),services[i].getName());
 
-            Logger.info("    register class " + className);
+            Logger.info("    register service " + name + ", class: " + services[i].getClassname());
+            registerPublicMethods(name, s.getClass());
 
-            // Wir registrieren ihn nicht mit der Implementierungsklasse sondern ueber seinen Interfacenamen
-            registerPublicMethods(className, s.getClass());
-            Logger.info("    service successfully registered. URL: http://" + Application.getCallback().getHostname() + "/" + className);
+            Logger.info("    service successfully registered. URL: http://" + Application.getCallback().getHostname() + ":" + de.willuhn.jameica.xmlrpc.Settings.getPort() + "/xmlrpc/" + name);
           }
           catch (Exception e)
           {
@@ -112,6 +110,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.5  2006/10/31 01:43:07  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.4  2006/10/28 01:05:37  willuhn
  * @N add bindings on demand
  *

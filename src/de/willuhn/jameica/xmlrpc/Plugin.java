@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Plugin.java,v $
- * $Revision: 1.2 $
- * $Date: 2006/10/19 16:08:30 $
+ * $Revision: 1.3 $
+ * $Date: 2006/10/31 01:43:08 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -14,6 +14,8 @@
 package de.willuhn.jameica.xmlrpc;
 
 import java.io.File;
+
+import org.apache.commons.logging.LogFactory;
 
 import de.willuhn.jameica.plugin.AbstractPlugin;
 import de.willuhn.util.ApplicationException;
@@ -37,6 +39,7 @@ public class Plugin extends AbstractPlugin
    */
   public void init() throws ApplicationException
   {
+    LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log",MyLogger.class.getName());
   }
 
   /**
@@ -65,6 +68,9 @@ public class Plugin extends AbstractPlugin
 
 /*********************************************************************
  * $Log: Plugin.java,v $
+ * Revision 1.3  2006/10/31 01:43:08  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.2  2006/10/19 16:08:30  willuhn
  * *** empty log message ***
  *
