@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.4 $
- * $Date: 2006/10/31 17:44:20 $
+ * $Revision: 1.5 $
+ * $Date: 2006/10/31 23:56:44 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.TableItem;
 import de.willuhn.datasource.GenericIterator;
 import de.willuhn.datasource.Service;
 import de.willuhn.datasource.pseudo.PseudoIterator;
-import de.willuhn.jameica.gui.Action;
 import de.willuhn.jameica.gui.GUI;
 import de.willuhn.jameica.gui.extension.Extendable;
 import de.willuhn.jameica.gui.extension.Extension;
@@ -33,8 +32,10 @@ import de.willuhn.jameica.gui.input.CheckboxInput;
 import de.willuhn.jameica.gui.input.IntegerInput;
 import de.willuhn.jameica.gui.internal.views.Settings;
 import de.willuhn.jameica.gui.parts.TablePart;
-import de.willuhn.jameica.gui.util.ButtonArea;
 import de.willuhn.jameica.gui.util.TabGroup;
+import de.willuhn.jameica.messaging.Message;
+import de.willuhn.jameica.messaging.MessageConsumer;
+import de.willuhn.jameica.messaging.SettingsChangedMessage;
 import de.willuhn.jameica.messaging.StatusBarMessage;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.xmlrpc.Plugin;
@@ -55,6 +56,7 @@ public class SettingsView implements Extension
   private TablePart services = null;
 
   private I18N i18n = null;
+  private MessageConsumer consumer = null;
   
   /**
    * ct.
@@ -73,10 +75,41 @@ public class SettingsView implements Extension
 
     Settings settings = (Settings) extendable;
     
+    this.consumer = new MessageConsumer() {
+    
+      /**
+       * @see de.willuhn.jameica.messaging.MessageConsumer#handleMessage(de.willuhn.jameica.messaging.Message)
+       */
+      public void handleMessage(Message message) throws Exception
+      {
+        handleStore();
+      }
+    
+      /**
+       * @see de.willuhn.jameica.messaging.MessageConsumer#getExpectedMessageTypes()
+       */
+      public Class[] getExpectedMessageTypes()
+      {
+        return new Class[]{SettingsChangedMessage.class};
+      }
+    
+      /**
+       * @see de.willuhn.jameica.messaging.MessageConsumer#autoRegister()
+       */
+      public boolean autoRegister()
+      {
+        return false;
+      }
+    };
+    Application.getMessagingFactory().registerMessageConsumer(this.consumer);
+
     try
     {
       TabGroup tab = new TabGroup(settings.getTabFolder(),i18n.tr("XML-RPC"));
       
+      // Da wir keine echte View sind, haben wir auch kein unbind zum Aufraeumen.
+      // Damit wir unsere GUI-Elemente aber trotzdem disposen koennen, registrieren
+      // wir einen Dispose-Listener an der Tabgroup
       tab.getComposite().addDisposeListener(new DisposeListener() {
       
         public void widgetDisposed(DisposeEvent e)
@@ -85,6 +118,7 @@ public class SettingsView implements Extension
           ssl      = null;
           auth     = null;
           services = null;
+          Application.getMessagingFactory().unRegisterMessageConsumer(consumer);
         }
       
       });
@@ -94,55 +128,6 @@ public class SettingsView implements Extension
       
       tab.addHeadline(i18n.tr("Freigegebene Services"));
       tab.addPart(getServices());
-      
-      // TODO: Ueber die regulaeren Buttons auf der Settings-Seite mit abwickeln
-      ButtonArea buttons = new ButtonArea(tab.getComposite(),1);
-      buttons.addButton(i18n.tr("Speichern"), new Action() {
-      
-        public void handleAction(Object context) throws ApplicationException
-        {
-          Integer in = (Integer) getPort().getValue();
-          if (in == null)
-            throw new ApplicationException(i18n.tr("Bitte geben Sie eine TCP-Portnummer für XML-RPC ein"));
-          de.willuhn.jameica.xmlrpc.Settings.setPort(in.intValue());
-          de.willuhn.jameica.xmlrpc.Settings.setUseAuth(((Boolean) getUseAuth().getValue()).booleanValue());
-          de.willuhn.jameica.xmlrpc.Settings.setUseSSL(((Boolean) getUseSSL().getValue()).booleanValue());
-          
-          // Jetzt noch die Freigaben speichern
-          try
-          {
-            GenericIterator selected = getServices().getItems();
-            XmlRpcService[] all = de.willuhn.jameica.xmlrpc.Settings.getServices();
-            for (int i=0;i<all.length;++i)
-            {
-              all[i].setShared(selected.contains(all[i]) != null);
-            }
-          }
-          catch (RemoteException re)
-          {
-            Logger.error("unable to apply service settings",re);
-            Application.getMessagingFactory().sendMessage(new StatusBarMessage(i18n.tr("Fehler beim Übernehmen der freigegebenen Services"), StatusBarMessage.TYPE_ERROR));
-            return;
-          }
-          
-          try
-          {
-            Logger.info("restart http listener");
-            Service listener = Application.getServiceFactory().lookup(Plugin.class,"listener.http");
-            listener.stop(true);
-            listener.start();
-          }
-          catch (Exception e)
-          {
-            Logger.error("unable to restart listener",e);
-            Application.getMessagingFactory().sendMessage(new StatusBarMessage(i18n.tr("Fehler beim Neustart des Dienstes, bitte starten Sie Jameica neu"), StatusBarMessage.TYPE_ERROR));
-            return;
-          }
-
-          Application.getMessagingFactory().sendMessage(new StatusBarMessage(i18n.tr("Einstellungen gespeichert"), StatusBarMessage.TYPE_SUCCESS));
-        }
-      
-      });
     }
     catch (Exception e)
     {
@@ -150,6 +135,49 @@ public class SettingsView implements Extension
       Application.getMessagingFactory().sendMessage(new StatusBarMessage(i18n.tr("Fehler beim Anzeigen der XML-RPC Einstellungen"), StatusBarMessage.TYPE_ERROR));
     }
     
+  }
+  
+  /**
+   * Wird beim Speichern aufgerufen.
+   * @throws ApplicationException
+   */
+  private void handleStore() throws ApplicationException
+  {
+    Integer in = (Integer) getPort().getValue();
+    if (in == null)
+      throw new ApplicationException(i18n.tr("Bitte geben Sie eine TCP-Portnummer für XML-RPC ein"));
+    de.willuhn.jameica.xmlrpc.Settings.setPort(in.intValue());
+    de.willuhn.jameica.xmlrpc.Settings.setUseAuth(((Boolean) getUseAuth().getValue()).booleanValue());
+    de.willuhn.jameica.xmlrpc.Settings.setUseSSL(((Boolean) getUseSSL().getValue()).booleanValue());
+    
+    // Jetzt noch die Freigaben speichern
+    try
+    {
+      GenericIterator selected = getServices().getItems();
+      XmlRpcService[] all = de.willuhn.jameica.xmlrpc.Settings.getServices();
+      for (int i=0;i<all.length;++i)
+      {
+        all[i].setShared(selected.contains(all[i]) != null);
+      }
+    }
+    catch (RemoteException re)
+    {
+      Logger.error("unable to apply service settings",re);
+      throw new ApplicationException(i18n.tr("Fehler beim Übernehmen der freigegebenen Services"));
+    }
+    
+    try
+    {
+      Logger.info("restart http listener");
+      Service listener = Application.getServiceFactory().lookup(Plugin.class,"listener.http");
+      listener.stop(true);
+      listener.start();
+    }
+    catch (Exception e)
+    {
+      Logger.error("unable to restart listener",e);
+      throw new ApplicationException(i18n.tr("Fehler beim Neustart des Dienstes, bitte starten Sie Jameica neu"));
+    }
   }
 
   /**
@@ -265,6 +293,9 @@ public class SettingsView implements Extension
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
+ * Revision 1.5  2006/10/31 23:56:44  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.4  2006/10/31 17:44:20  willuhn
  * *** empty log message ***
  *
