@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/MyWebServer.java,v $
- * $Revision: 1.1 $
- * $Date: 2006/10/31 17:06:26 $
+ * $Revision: 1.2 $
+ * $Date: 2006/10/31 17:44:20 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -38,6 +38,9 @@ public class MyWebServer extends WebServer
   public MyWebServer()
   {
     super(Settings.getPort());
+    Logger.info("started webserver at port " + Settings.getPort());
+    Logger.info("  ssl enabled : " + Settings.getUseSSL());
+    Logger.info("  auth enabled: " + Settings.getUseAuth());
   }
 
   /**
@@ -70,6 +73,9 @@ public class MyWebServer extends WebServer
 
 /*********************************************************************
  * $Log: MyWebServer.java,v $
+ * Revision 1.2  2006/10/31 17:44:20  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2006/10/31 17:06:26  willuhn
  * @N GUI to configure xml-rpc
  *

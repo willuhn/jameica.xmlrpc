@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.3 $
- * $Date: 2006/10/31 17:06:26 $
+ * $Revision: 1.4 $
+ * $Date: 2006/10/31 17:44:20 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,6 +15,8 @@ package de.willuhn.jameica.xmlrpc.ext.jameica;
 
 import java.rmi.RemoteException;
 
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
@@ -29,7 +31,6 @@ import de.willuhn.jameica.gui.extension.Extension;
 import de.willuhn.jameica.gui.formatter.TableFormatter;
 import de.willuhn.jameica.gui.input.CheckboxInput;
 import de.willuhn.jameica.gui.input.IntegerInput;
-import de.willuhn.jameica.gui.internal.action.Back;
 import de.willuhn.jameica.gui.internal.views.Settings;
 import de.willuhn.jameica.gui.parts.TablePart;
 import de.willuhn.jameica.gui.util.ButtonArea;
@@ -75,22 +76,34 @@ public class SettingsView implements Extension
     try
     {
       TabGroup tab = new TabGroup(settings.getTabFolder(),i18n.tr("XML-RPC"));
+      
+      tab.getComposite().addDisposeListener(new DisposeListener() {
+      
+        public void widgetDisposed(DisposeEvent e)
+        {
+          port     = null;
+          ssl      = null;
+          auth     = null;
+          services = null;
+        }
+      
+      });
       tab.addLabelPair(i18n.tr("TCP-Port"), getPort());
       tab.addCheckbox(getUseSSL(), i18n.tr("HTTP-Kommunikation verschlüsseln (HTTPS)"));
       tab.addCheckbox(getUseAuth(), i18n.tr("Benutzerauthentifizierung mittels Jameica Master-Passwort"));
       
-      tab.addHeadline(i18n.tr("Via XML-RPC freizugebende Services"));
-      getServices().paint(tab.getComposite());
+      tab.addHeadline(i18n.tr("Freigegebene Services"));
+      tab.addPart(getServices());
       
-      ButtonArea buttons = new ButtonArea(tab.getComposite(),2);
-      buttons.addButton(i18n.tr("Zurück"), new Back(),null,true);
+      // TODO: Ueber die regulaeren Buttons auf der Settings-Seite mit abwickeln
+      ButtonArea buttons = new ButtonArea(tab.getComposite(),1);
       buttons.addButton(i18n.tr("Speichern"), new Action() {
       
         public void handleAction(Object context) throws ApplicationException
         {
           Integer in = (Integer) getPort().getValue();
           if (in == null)
-            throw new ApplicationException(i18n.tr("Bitte geben Sie eine TCP-Portnummer ein"));
+            throw new ApplicationException(i18n.tr("Bitte geben Sie eine TCP-Portnummer für XML-RPC ein"));
           de.willuhn.jameica.xmlrpc.Settings.setPort(in.intValue());
           de.willuhn.jameica.xmlrpc.Settings.setUseAuth(((Boolean) getUseAuth().getValue()).booleanValue());
           de.willuhn.jameica.xmlrpc.Settings.setUseSSL(((Boolean) getUseSSL().getValue()).booleanValue());
@@ -149,6 +162,7 @@ public class SettingsView implements Extension
       return this.ssl;
     
     this.ssl = new CheckboxInput(de.willuhn.jameica.xmlrpc.Settings.getUseSSL());
+    this.ssl.addListener(new AuthListener());
     return this.ssl;
   }
   
@@ -162,21 +176,7 @@ public class SettingsView implements Extension
       return this.auth;
     
     this.auth = new CheckboxInput(de.willuhn.jameica.xmlrpc.Settings.getUseAuth());
-    this.auth.addListener(new Listener() {
-
-      /**
-       * @see org.eclipse.swt.widgets.Listener#handleEvent(org.eclipse.swt.widgets.Event)
-       */
-      public void handleEvent(Event event)
-      {
-        // Wir pruefen, ob SSL aktiv ist, damit das Passwort sicher uebertragen wird
-        boolean a = ((Boolean) auth.getValue()).booleanValue();
-        boolean s = ((Boolean) getUseSSL().getValue()).booleanValue();
-        if (a && !s)
-          GUI.getView().setErrorText(i18n.tr("Benutzerauthentifizierung sollte nur zusammen mit Verschlüsselung aktiviert werden"));
-      }
-    
-    });
+    this.auth.addListener(new AuthListener());
     return this.auth;
   }
   
@@ -205,9 +205,10 @@ public class SettingsView implements Extension
     XmlRpcService[] services = de.willuhn.jameica.xmlrpc.Settings.getServices();
     this.services = new TablePart(PseudoIterator.fromArray(services),null);
     this.services.setCheckable(true);
-    this.services.setMulti(true);
+    this.services.setMulti(false);
     this.services.setRememberColWidths(true);
     this.services.setRememberOrder(true);
+    this.services.setSummary(false);
     this.services.addColumn(i18n.tr("Plugin"),"pluginname");
     this.services.addColumn(i18n.tr("Service"),"servicename");
     this.services.setFormatter(new TableFormatter() {
@@ -239,12 +240,34 @@ public class SettingsView implements Extension
     
     return this.services;
   }
-  
+
+  /**
+   * Listener zum Pruefen, dass Authentifizierung nur zusammen mit SSL aktiv ist.
+   */
+  private class AuthListener implements Listener
+  {
+    /**
+     * @see org.eclipse.swt.widgets.Listener#handleEvent(org.eclipse.swt.widgets.Event)
+     */
+    public void handleEvent(Event event)
+    {
+      // Wir pruefen, ob SSL aktiv ist, damit das Passwort sicher uebertragen wird
+      boolean a = ((Boolean) getUseAuth().getValue()).booleanValue();
+      boolean s = ((Boolean) getUseSSL().getValue()).booleanValue();
+      if (a && !s)
+        GUI.getView().setErrorText(i18n.tr("Benutzerauthentifizierung sollte nur zusammen mit Verschlüsselung aktiviert werden"));
+      else
+        GUI.getView().setSuccessText("");
+    }
+  }
 }
 
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
+ * Revision 1.4  2006/10/31 17:44:20  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.3  2006/10/31 17:06:26  willuhn
  * @N GUI to configure xml-rpc
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/HttpServiceImpl.java,v $
- * $Revision: 1.5 $
- * $Date: 2006/10/31 01:43:07 $
+ * $Revision: 1.6 $
+ * $Date: 2006/10/31 17:44:20 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -18,9 +18,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
-import org.apache.xmlrpc.webserver.WebServer;
 
-import de.willuhn.jameica.xmlrpc.Settings;
 import de.willuhn.logging.Logger;
 
 /**
@@ -30,7 +28,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
     de.willuhn.jameica.xmlrpc.rmi.HttpService
 {
 
-  private WebServer server = null;
+  private MyWebServer server = null;
   
   /**
    * @throws RemoteException
@@ -78,7 +76,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
 
     try
     {
-      this.server = new WebServer(Settings.getPort());
+      this.server = new MyWebServer();
       
       XmlRpcServer xmlRpcServer = this.server.getXmlRpcServer();
       xmlRpcServer.setHandlerMapping(new HandlerMappingImpl());
@@ -123,6 +121,9 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
 
 /*********************************************************************
  * $Log: HttpServiceImpl.java,v $
+ * Revision 1.6  2006/10/31 17:44:20  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.5  2006/10/31 01:43:07  willuhn
  * *** empty log message ***
  *

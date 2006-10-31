@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Settings.java,v $
- * $Revision: 1.2 $
- * $Date: 2006/10/31 17:06:26 $
+ * $Revision: 1.3 $
+ * $Date: 2006/10/31 17:44:20 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -64,7 +64,7 @@ public class Settings
     }
     
     if (port < 1 || port > 65535)
-      throw new ApplicationException(Application.getI18n().tr("TCP-Portnummer ausserhalb des gültigen Bereichs von {0} bis {1}", new String[]{""+1,""+65535}));
+      throw new ApplicationException(Application.getI18n().tr("TCP-Portnummer für XML-RPC ausserhalb des gültigen Bereichs von {0} bis {1}", new String[]{""+1,""+65535}));
 
     ServerSocket s = null;
     try
@@ -75,12 +75,12 @@ public class Settings
     }
     catch (BindException e)
     {
-      throw new ApplicationException(Application.getI18n().tr("Die angegebene TCP-Portnummer {0} ist bereits belegt",""+port));
+      throw new ApplicationException(Application.getI18n().tr("Die angegebene TCP-Portnummer für XML-RPC {0} ist bereits belegt",""+port));
     }
     catch (IOException ioe)
     {
       Logger.error("error while opening socket on port " + port);
-      throw new ApplicationException(Application.getI18n().tr("Fehler beim Testen der TCP-Portnummer {0}. Ist der Port bereits belegt?",""+port));
+      throw new ApplicationException(Application.getI18n().tr("Fehler beim Testen der TCP-Portnummer für XML-RPC {0}. Ist der Port bereits belegt?",""+port));
     }
     finally
     {
@@ -149,15 +149,21 @@ public class Settings
     PluginLoader loader = Application.getPluginLoader();
     Iterator manifests  = loader.getInstalledManifests();
 
+    Manifest self = Application.getPluginLoader().getManifest(Plugin.class);
+    
     ArrayList l = new ArrayList();
     while (manifests.hasNext())
     {
-      Manifest mf                  = (Manifest) manifests.next();
+      Manifest mf = (Manifest) manifests.next();
+      
       ServiceDescriptor[] services = mf.getServices();
-
+      
       Logger.info("  checking plugin " + mf.getName());
       for (int i=0;i<services.length;++i)
       {
+        if ("listener.http".equals(services[i].getName()) && self.getPluginClass().equals(mf.getPluginClass()))
+          continue; // Das sind wir selbst
+
         Logger.info("    checking service " + mf.getName() + "." + services[i].getName());
         try
         {
@@ -177,6 +183,9 @@ public class Settings
 
 /*********************************************************************
  * $Log: Settings.java,v $
+ * Revision 1.3  2006/10/31 17:44:20  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.2  2006/10/31 17:06:26  willuhn
  * @N GUI to configure xml-rpc
  *
