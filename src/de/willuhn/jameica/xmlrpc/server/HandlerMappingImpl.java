@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.5 $
- * $Date: 2006/10/31 01:43:07 $
+ * $Revision: 1.6 $
+ * $Date: 2006/10/31 17:06:26 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,22 +13,18 @@
 
 package de.willuhn.jameica.xmlrpc.server;
 
-import java.util.Iterator;
-
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcHandler;
+import org.apache.xmlrpc.XmlRpcRequest;
+import org.apache.xmlrpc.XmlRpcRequestConfig;
+import org.apache.xmlrpc.common.XmlRpcHttpRequestConfig;
 import org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 
-import de.willuhn.datasource.Service;
-import de.willuhn.jameica.plugin.AbstractPlugin;
-import de.willuhn.jameica.plugin.Manifest;
-import de.willuhn.jameica.plugin.PluginLoader;
-import de.willuhn.jameica.plugin.ServiceDescriptor;
 import de.willuhn.jameica.system.Application;
-import de.willuhn.jameica.system.Settings;
-import de.willuhn.jameica.xmlrpc.Plugin;
+import de.willuhn.jameica.xmlrpc.Settings;
+import de.willuhn.jameica.xmlrpc.rmi.XmlRpcService;
 import de.willuhn.logging.Logger;
 
 /**
@@ -47,47 +43,56 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
     if (initialized)
       return;
     
-    try
-    {
-      Logger.info("registering XML-RPC handlers");
-      
-      PluginLoader loader = Application.getPluginLoader();
-      AbstractPlugin self = loader.getPlugin(Plugin.class);
-      Iterator manifests  = loader.getInstalledManifests();
-
-      Settings settings   = self.getResources().getSettings();
-
-      while (manifests.hasNext())
+    this.setAuthenticationHandler(new AuthenticationHandler() {
+    
+      /**
+       * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping$AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
+       */
+      public boolean isAuthorized(XmlRpcRequest request) throws XmlRpcException
       {
-        Manifest mf                  = (Manifest) manifests.next();
-        AbstractPlugin plugin        = loader.getPlugin(mf.getPluginClass());
-        ServiceDescriptor[] services = mf.getServices();
+        if (!Settings.getUseAuth())
+          return true;
 
-        Logger.info("  checking plugin " + mf.getName());
-
-        for (int i=0;i<services.length;++i)
+        XmlRpcRequestConfig c = request.getConfig();
+        if (c instanceof XmlRpcHttpRequestConfig)
         {
-          String name = mf.getName() + "." + services[i].getName();
-
-          Logger.info("    checking service " + name);
+          XmlRpcHttpRequestConfig config = (XmlRpcHttpRequestConfig) c;
+          String password = config.getBasicPassword();
+          if (password == null || password.length() == 0)
+            return false;
           try
           {
-            if (!settings.getBoolean(name + ".shared",false))
-              continue;
-
-            Service s = Application.getServiceFactory().lookup(plugin.getClass(),services[i].getName());
-
-            Logger.info("    register service " + name + ", class: " + services[i].getClassname());
-            registerPublicMethods(name, s.getClass());
-
-            Logger.info("    service successfully registered. URL: http://" + Application.getCallback().getHostname() + ":" + de.willuhn.jameica.xmlrpc.Settings.getPort() + "/xmlrpc/" + name);
+            return password.equals(Application.getCallback().getPassword());
           }
           catch (Exception e)
           {
-            Logger.error("unable to register service",e);
+            Logger.error("error while checking password, denying request",e);
+            return false;
           }
         }
+        Logger.warn("authentication enabled, but this is no http request, denying request");
+        return false;
       }
+    
+    });
+    
+    try
+    {
+
+      XmlRpcService[] services = Settings.getServices();
+      for (int i=0;i<services.length;++i)
+      {
+        XmlRpcService service = services[i];
+        if (!service.isShared())
+          continue;
+
+        registerPublicMethods(service.getID(),service.getService().getClass());
+        Logger.info("    service successfully registered. URL: http" + (Settings.getUseSSL() ? "s" : "") + "://" + Application.getCallback().getHostname() + ":" + Settings.getPort() + "/xmlrpc/" + service.getID());
+      }
+    }
+    catch (Exception e)
+    {
+      Logger.error("unable to register service",e);
     }
     finally
     {
@@ -110,6 +115,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.6  2006/10/31 17:06:26  willuhn
+ * @N GUI to configure xml-rpc
+ *
  * Revision 1.5  2006/10/31 01:43:07  willuhn
  * *** empty log message ***
  *

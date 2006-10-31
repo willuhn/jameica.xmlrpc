@@ -6,8 +6,8 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/EchoTest.java,v $
- * $Revision: 1.3 $
- * $Date: 2006/10/31 01:43:08 $
+ * $Revision: 1.4 $
+ * $Date: 2006/10/31 17:06:26 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -26,17 +26,13 @@ public class EchoTest
   public static void main(String[] args) throws Exception
   {
     XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+    config.setEnabledForExtensions(true);
     config.setServerURL(new URL("http://127.0.0.1:8888/xmlrpc"));
     XmlRpcClient client = new XmlRpcClient();
     client.setConfig(config);
     
-    Object msg = (Object) client.execute("hibiscus.xmlrpc.konto.create",new String[]{"123456789","12345678","RPC-Konto","neuer Inhaber"});
+    Object msg = (Object) client.execute("hibiscus.xmlrpc.konto.list",(Object[]) null);
     System.out.println(msg);
-    Object[] konten = (Object[]) client.execute("hibiscus.xmlrpc.konto.getList",new Object[0]);
-    for (int i=0;i<konten.length;++i)
-    {
-      System.out.println(konten[i]);
-    }
   }
 
 }
@@ -44,6 +40,9 @@ public class EchoTest
 
 /*********************************************************************
  * $Log: EchoTest.java,v $
+ * Revision 1.4  2006/10/31 17:06:26  willuhn
+ * @N GUI to configure xml-rpc
+ *
  * Revision 1.3  2006/10/31 01:43:08  willuhn
  * *** empty log message ***
  *
