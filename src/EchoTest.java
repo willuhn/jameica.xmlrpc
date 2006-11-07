@@ -14,8 +14,8 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/EchoTest.java,v $
- * $Revision: 1.5 $
- * $Date: 2006/11/01 00:49:30 $
+ * $Revision: 1.6 $
+ * $Date: 2006/11/07 23:57:16 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -47,7 +47,7 @@ public class EchoTest
     
     // Jameica-Masterpasswort
     // Falls in Jameica die Abfrage des Passwortes bei XML-RPC-Anfragen aktiviert ist
-    config.setBasicPassword("test");
+    config.setBasicPassword("geheim");
     
     // Ein Username muss leider angegeben werden, wenn in Jameica die
     // Passwort-Kontrolle aktiv ist. Sonst wirft Apache XML-RPC einen Fehler.
@@ -78,17 +78,41 @@ public class EchoTest
     String echo = (String) client.execute("jameica.xmlrpc.echo.echo",new String[]{"Hello World"});
     System.out.println(echo);
 
-    // Methode "getList" auf dem Service "hibiscus.xmlrpc.konto" ausfuehren.
+    // Methode "list" auf dem Service "hibiscus.xmlrpc.konto" ausfuehren.
     // Freigegebene Services siehe Jameica: Datei->Einstellungen->XML-RPC
     // Der Parameter "(Object[]) null" muss angegeben werden, auch wenn
     // die Methode keine Parameter erwartet.
     System.out.println("Test 2:");
-    Object[] konten = (Object[]) client.execute("hibiscus.xmlrpc.konto.getList",(Object[]) null);
+    Object[] konten = (Object[]) client.execute("hibiscus.xmlrpc.konto.list",(Object[]) null);
     
     for (int i=0;i<konten.length;++i)
     {
       System.out.println(konten[i]);
     }
+
+    // Methode "list" auf dem Service "hibiscus.xmlrpc.ueberweisung" ausfuehren.
+    System.out.println("Test 3:");
+    Object[] ueberweisungen = (Object[]) client.execute("hibiscus.xmlrpc.ueberweisung.list",(Object[]) null);
+    
+    for (int i=0;i<ueberweisungen.length;++i)
+    {
+      System.out.println(ueberweisungen[i]);
+    }
+  
+    // Neue Ueberweisung anlegen
+    System.out.println("Test 4:");
+    Object[] params = new Object[]
+      {
+        "0",                // ID des Kontos, auf dem die Ueberweisung ausgefuehrt werden soll
+        "123456789",        // Kontonummer des Empfaengers
+        "12345678",         // BLZ des Empfaenger-Kontos
+        "Max Mustermann",   // Name des Empfaengers
+        "Das ist ein Test", // Verwendungszweck
+        new Double(1.00),   // Betrag (1,- EUR)
+      };
+    Object returnCode = (Object) client.execute("hibiscus.xmlrpc.ueberweisung.create",params);
+    System.out.println(returnCode);
+
   }
 
 
@@ -161,6 +185,9 @@ public class EchoTest
 
 /*********************************************************************
  * $Log: EchoTest.java,v $
+ * Revision 1.6  2006/11/07 23:57:16  willuhn
+ * @N Testcode erweitert
+ *
  * Revision 1.5  2006/11/01 00:49:30  willuhn
  * @N Beispiel-Code dokumentiert
  *
