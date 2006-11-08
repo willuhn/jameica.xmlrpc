@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/EchoTest.java,v $
- * $Revision: 1.7 $
- * $Date: 2006/11/08 00:01:31 $
+ * $Revision: 1.8 $
+ * $Date: 2006/11/08 00:01:45 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -26,6 +26,9 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 
+/**
+ * Testklasse.
+ */
 public class EchoTest
 {
 
@@ -186,6 +189,9 @@ public class EchoTest
 
 /*********************************************************************
  * $Log: EchoTest.java,v $
+ * Revision 1.8  2006/11/08 00:01:45  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.7  2006/11/08 00:01:31  willuhn
  * *** empty log message ***
  *
