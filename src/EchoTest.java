@@ -1,3 +1,16 @@
+/**********************************************************************
+ * $Source: /cvsroot/jameica/jameica.xmlrpc/src/EchoTest.java,v $
+ * $Revision: 1.7 $
+ * $Date: 2006/11/08 00:01:31 $
+ * $Author: willuhn $
+ * $Locker:  $
+ * $State: Exp $
+ *
+ * Copyright (c) by willuhn.webdesign
+ * All rights reserved
+ *
+ **********************************************************************/
+
 import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -12,18 +25,6 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
-/**********************************************************************
- * $Source: /cvsroot/jameica/jameica.xmlrpc/src/EchoTest.java,v $
- * $Revision: 1.6 $
- * $Date: 2006/11/07 23:57:16 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
- *
- * Copyright (c) by willuhn.webdesign
- * All rights reserved
- *
- **********************************************************************/
 
 public class EchoTest
 {
@@ -185,6 +186,9 @@ public class EchoTest
 
 /*********************************************************************
  * $Log: EchoTest.java,v $
+ * Revision 1.7  2006/11/08 00:01:31  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.6  2006/11/07 23:57:16  willuhn
  * @N Testcode erweitert
  *
