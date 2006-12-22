@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/MyWebServer.java,v $
- * $Revision: 1.2 $
- * $Date: 2006/10/31 17:44:20 $
+ * $Revision: 1.3 $
+ * $Date: 2006/12/22 13:49:58 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -37,8 +37,11 @@ public class MyWebServer extends WebServer
    */
   public MyWebServer()
   {
-    super(Settings.getPort());
+    super(Settings.getPort(),Settings.getAddress());
     Logger.info("started webserver at port " + Settings.getPort());
+    InetAddress ia = Settings.getAddress();
+    if (ia != null)
+      Logger.info("  bound to: " + ia.getHostAddress());
     Logger.info("  ssl enabled : " + Settings.getUseSSL());
     Logger.info("  auth enabled: " + Settings.getUseAuth());
   }
@@ -73,6 +76,9 @@ public class MyWebServer extends WebServer
 
 /*********************************************************************
  * $Log: MyWebServer.java,v $
+ * Revision 1.3  2006/12/22 13:49:58  willuhn
+ * @N server kann an interface gebunden werden
+ *
  * Revision 1.2  2006/10/31 17:44:20  willuhn
  * *** empty log message ***
  *

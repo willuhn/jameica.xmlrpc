@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.6 $
- * $Date: 2006/12/22 09:31:38 $
+ * $Revision: 1.7 $
+ * $Date: 2006/12/22 13:49:58 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,7 +13,13 @@
 
 package de.willuhn.jameica.xmlrpc.ext.jameica;
 
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -22,6 +28,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 
 import de.willuhn.datasource.GenericIterator;
+import de.willuhn.datasource.GenericObject;
 import de.willuhn.datasource.Service;
 import de.willuhn.datasource.pseudo.PseudoIterator;
 import de.willuhn.jameica.gui.GUI;
@@ -29,7 +36,9 @@ import de.willuhn.jameica.gui.extension.Extendable;
 import de.willuhn.jameica.gui.extension.Extension;
 import de.willuhn.jameica.gui.formatter.TableFormatter;
 import de.willuhn.jameica.gui.input.CheckboxInput;
+import de.willuhn.jameica.gui.input.Input;
 import de.willuhn.jameica.gui.input.IntegerInput;
+import de.willuhn.jameica.gui.input.LabelInput;
 import de.willuhn.jameica.gui.input.SelectInput;
 import de.willuhn.jameica.gui.internal.views.Settings;
 import de.willuhn.jameica.gui.parts.TablePart;
@@ -55,7 +64,7 @@ public class SettingsView implements Extension
   private CheckboxInput ssl   = null;
   private CheckboxInput auth  = null;
   private TablePart services  = null;
-  private SelectInput address = null;
+  private Input address       = null;
 
   private I18N i18n = null;
   private MessageConsumer consumer = null;
@@ -120,11 +129,13 @@ public class SettingsView implements Extension
           ssl      = null;
           auth     = null;
           services = null;
+          address  = null;
           Application.getMessagingFactory().unRegisterMessageConsumer(consumer);
         }
       
       });
       tab.addLabelPair(i18n.tr("TCP-Port"), getPort());
+      tab.addLabelPair(i18n.tr("Server binden an"), getAddress());
       tab.addCheckbox(getUseSSL(), i18n.tr("HTTP-Kommunikation verschlüsseln (HTTPS)"));
       tab.addCheckbox(getUseAuth(), i18n.tr("Benutzerauthentifizierung mittels Jameica Master-Passwort"));
       
@@ -151,6 +162,7 @@ public class SettingsView implements Extension
     de.willuhn.jameica.xmlrpc.Settings.setPort(in.intValue());
     de.willuhn.jameica.xmlrpc.Settings.setUseAuth(((Boolean) getUseAuth().getValue()).booleanValue());
     de.willuhn.jameica.xmlrpc.Settings.setUseSSL(((Boolean) getUseSSL().getValue()).booleanValue());
+    de.willuhn.jameica.xmlrpc.Settings.setAddress(((AddressObject)getAddress().getValue()).ia);
     
     // Jetzt noch die Freigaben speichern
     try
@@ -223,6 +235,44 @@ public class SettingsView implements Extension
   }
   
   /**
+   * Liefert eine Auswahl-Box fuer die Adresse.
+   * @return Auswahl-Box.
+   */
+  private Input getAddress()
+  {
+    if (this.address != null)
+      return this.address;
+
+    try
+    {
+      ArrayList l = new ArrayList();
+      l.add(new AddressObject(null)); // steht fuer "alle Interfaces"
+      Enumeration e = NetworkInterface.getNetworkInterfaces();
+      while (e.hasMoreElements())
+      {
+        NetworkInterface i = (NetworkInterface) e.nextElement();
+        Enumeration e2 = i.getInetAddresses();
+        while (e2.hasMoreElements())
+        {
+          InetAddress ia = (InetAddress) e2.nextElement();
+          if (ia instanceof Inet6Address)
+            continue; // IPv6 ignorieren wir - nutzt ja eh keiner ;)
+          l.add(new AddressObject(ia));
+        }
+      }
+      Collections.sort(l);
+      GenericIterator i = PseudoIterator.fromArray((AddressObject[])l.toArray(new AddressObject[l.size()]));
+      this.address = new SelectInput(i, new AddressObject(de.willuhn.jameica.xmlrpc.Settings.getAddress()));
+    }
+    catch (Exception e)
+    {
+      Logger.error("unable to determine addresses",e);
+      this.address = new LabelInput(i18n.tr("Keine Interfaces gefunden"));
+    }
+    return this.address;
+  }
+  
+  /**
    * Liefert die Liste der Services.
    * @return Liste der Services.
    * @throw RemoteException
@@ -270,6 +320,87 @@ public class SettingsView implements Extension
     
     return this.services;
   }
+  
+  /**
+   * Hilfsobjekt fuer die Adress-Auswahl.
+   */
+  private class AddressObject implements GenericObject, Comparable
+  {
+    private InetAddress ia = null;
+    
+    /**
+     * ct.
+     * @param address
+     */
+    private AddressObject(InetAddress address)
+    {
+      this.ia = address;
+    }
+
+    /**
+     * @see de.willuhn.datasource.GenericObject#equals(de.willuhn.datasource.GenericObject)
+     */
+    public boolean equals(GenericObject arg0) throws RemoteException
+    {
+      if (arg0 == null || !(arg0 instanceof AddressObject))
+        return false;
+
+      AddressObject other = (AddressObject) arg0;
+      if (this.ia == other.ia)
+        return true;
+      
+      if (this.ia == null)
+        return other.ia == null;
+      
+      return this.ia.equals(other.ia);
+    }
+
+    /**
+     * @see de.willuhn.datasource.GenericObject#getAttribute(java.lang.String)
+     */
+    public Object getAttribute(String arg0) throws RemoteException
+    {
+      if (this.ia == null)
+        return i18n.tr("Alle Netzwerk-Interfaces");
+      return this.ia.getHostAddress();
+    }
+
+    /**
+     * @see de.willuhn.datasource.GenericObject#getAttributeNames()
+     */
+    public String[] getAttributeNames() throws RemoteException
+    {
+      return new String[]{"foo"};
+    }
+
+    /**
+     * @see de.willuhn.datasource.GenericObject#getID()
+     */
+    public String getID() throws RemoteException
+    {
+      return this.ia == null ? null : this.ia.getHostAddress();
+    }
+
+    /**
+     * @see de.willuhn.datasource.GenericObject#getPrimaryAttribute()
+     */
+    public String getPrimaryAttribute() throws RemoteException
+    {
+      return "foo";
+    }
+
+    /**
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareTo(Object o)
+    {
+      if (o == null)
+        return -1;
+      if (this.ia == null)
+        return -1;
+      return this.ia.getHostAddress().compareTo(((AddressObject)o).ia.getHostAddress());
+    }
+  }
 
   /**
    * Listener zum Pruefen, dass Authentifizierung nur zusammen mit SSL aktiv ist.
@@ -295,6 +426,9 @@ public class SettingsView implements Extension
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
+ * Revision 1.7  2006/12/22 13:49:58  willuhn
+ * @N server kann an interface gebunden werden
+ *
  * Revision 1.6  2006/12/22 09:31:38  willuhn
  * @N bind address
  *

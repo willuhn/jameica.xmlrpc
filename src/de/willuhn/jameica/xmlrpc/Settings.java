@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Settings.java,v $
- * $Revision: 1.4 $
- * $Date: 2006/12/22 09:31:38 $
+ * $Revision: 1.5 $
+ * $Date: 2006/12/22 13:49:58 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -105,7 +105,7 @@ public class Settings
    * Liefert die Adresse, an die der Server gebunden werden soll.
    * @return die Adresse, an die der Server gebunden werden soll oder <code>null</code> fuer alle.
    */
-  public InetAddress getAddress()
+  public static InetAddress getAddress()
   {
     String s = SETTINGS.getString("listener.http.address",null);
     if (s == null)
@@ -125,7 +125,7 @@ public class Settings
    * Speichert die Adresse, an die der Server gebunden werden soll.
    * @param address die Adresse, an die der Server gebunden werden soll oder <code>null</code> fuer alle.
    */
-  public void setAddress(InetAddress address)
+  public static void setAddress(InetAddress address)
   {
     SETTINGS.setAttribute("listener.http.address",address == null ? null : address.getHostAddress());
   }
@@ -214,6 +214,9 @@ public class Settings
 
 /*********************************************************************
  * $Log: Settings.java,v $
+ * Revision 1.5  2006/12/22 13:49:58  willuhn
+ * @N server kann an interface gebunden werden
+ *
  * Revision 1.4  2006/12/22 09:31:38  willuhn
  * @N bind address
  *
