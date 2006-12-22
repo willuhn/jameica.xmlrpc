@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.5 $
- * $Date: 2006/10/31 23:56:44 $
+ * $Revision: 1.6 $
+ * $Date: 2006/12/22 09:31:38 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -30,6 +30,7 @@ import de.willuhn.jameica.gui.extension.Extension;
 import de.willuhn.jameica.gui.formatter.TableFormatter;
 import de.willuhn.jameica.gui.input.CheckboxInput;
 import de.willuhn.jameica.gui.input.IntegerInput;
+import de.willuhn.jameica.gui.input.SelectInput;
 import de.willuhn.jameica.gui.internal.views.Settings;
 import de.willuhn.jameica.gui.parts.TablePart;
 import de.willuhn.jameica.gui.util.TabGroup;
@@ -50,10 +51,11 @@ import de.willuhn.util.I18N;
  */
 public class SettingsView implements Extension
 {
-  private IntegerInput port  = null;
-  private CheckboxInput ssl  = null;
-  private CheckboxInput auth = null;
-  private TablePart services = null;
+  private IntegerInput port   = null;
+  private CheckboxInput ssl   = null;
+  private CheckboxInput auth  = null;
+  private TablePart services  = null;
+  private SelectInput address = null;
 
   private I18N i18n = null;
   private MessageConsumer consumer = null;
@@ -293,6 +295,9 @@ public class SettingsView implements Extension
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
+ * Revision 1.6  2006/12/22 09:31:38  willuhn
+ * @N bind address
+ *
  * Revision 1.5  2006/10/31 23:56:44  willuhn
  * *** empty log message ***
  *

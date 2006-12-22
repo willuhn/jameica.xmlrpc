@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Settings.java,v $
- * $Revision: 1.3 $
- * $Date: 2006/10/31 17:44:20 $
+ * $Revision: 1.4 $
+ * $Date: 2006/12/22 09:31:38 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,7 +15,9 @@ package de.willuhn.jameica.xmlrpc;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -97,6 +99,35 @@ public class Settings
       }
     }
     SETTINGS.setAttribute("listener.http.port",port);
+  }
+  
+  /**
+   * Liefert die Adresse, an die der Server gebunden werden soll.
+   * @return die Adresse, an die der Server gebunden werden soll oder <code>null</code> fuer alle.
+   */
+  public InetAddress getAddress()
+  {
+    String s = SETTINGS.getString("listener.http.address",null);
+    if (s == null)
+      return null;
+    try
+    {
+      return InetAddress.getByName(s);
+    }
+    catch (UnknownHostException e)
+    {
+      Logger.error("unable to resolve address " + s,e);
+    }
+    return null;
+  }
+  
+  /**
+   * Speichert die Adresse, an die der Server gebunden werden soll.
+   * @param address die Adresse, an die der Server gebunden werden soll oder <code>null</code> fuer alle.
+   */
+  public void setAddress(InetAddress address)
+  {
+    SETTINGS.setAttribute("listener.http.address",address == null ? null : address.getHostAddress());
   }
   
   /**
@@ -183,6 +214,9 @@ public class Settings
 
 /*********************************************************************
  * $Log: Settings.java,v $
+ * Revision 1.4  2006/12/22 09:31:38  willuhn
+ * @N bind address
+ *
  * Revision 1.3  2006/10/31 17:44:20  willuhn
  * *** empty log message ***
  *
