@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.6 $
- * $Date: 2006/10/31 17:06:26 $
+ * $Revision: 1.7 $
+ * $Date: 2006/12/22 16:14:07 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -12,6 +12,8 @@
  **********************************************************************/
 
 package de.willuhn.jameica.xmlrpc.server;
+
+import java.net.InetAddress;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcHandler;
@@ -42,7 +44,7 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
   {
     if (initialized)
       return;
-    
+   
     this.setAuthenticationHandler(new AuthenticationHandler() {
     
       /**
@@ -87,7 +89,10 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
           continue;
 
         registerPublicMethods(service.getID(),service.getService().getClass());
-        Logger.info("    service successfully registered. URL: http" + (Settings.getUseSSL() ? "s" : "") + "://" + Application.getCallback().getHostname() + ":" + Settings.getPort() + "/xmlrpc/" + service.getID());
+        InetAddress host = Settings.getAddress();
+        if (host == null)
+          host = InetAddress.getLocalHost();
+        Logger.info("    service successfully registered. URL: http" + (Settings.getUseSSL() ? "s" : "") + "://" + host.getHostAddress() + ":" + Settings.getPort() + "/xmlrpc/" + service.getID());
       }
     }
     catch (Exception e)
@@ -115,6 +120,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.7  2006/12/22 16:14:07  willuhn
+ * @N Ausgabe der IP, an die der Service gebunden wurde
+ *
  * Revision 1.6  2006/10/31 17:06:26  willuhn
  * @N GUI to configure xml-rpc
  *
