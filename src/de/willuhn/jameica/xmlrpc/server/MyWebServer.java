@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/MyWebServer.java,v $
- * $Revision: 1.3 $
- * $Date: 2006/12/22 13:49:58 $
+ * $Revision: 1.4 $
+ * $Date: 2007/01/24 15:52:24 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -42,6 +42,19 @@ public class MyWebServer extends WebServer
     InetAddress ia = Settings.getAddress();
     if (ia != null)
       Logger.info("  bound to: " + ia.getHostAddress());
+    
+    String[] allowed = Settings.getAllowedClients();
+    if (allowed != null)
+    {
+      this.setParanoid(true);
+      Logger.info("  client access restricted to:");
+      for (int i=0;i<allowed.length;++i)
+      {
+        Logger.info("    " + allowed[i]);
+        this.acceptClient(allowed[i]);
+      }
+    }
+      
     Logger.info("  ssl enabled : " + Settings.getUseSSL());
     Logger.info("  auth enabled: " + Settings.getUseAuth());
   }
@@ -76,6 +89,9 @@ public class MyWebServer extends WebServer
 
 /*********************************************************************
  * $Log: MyWebServer.java,v $
+ * Revision 1.4  2007/01/24 15:52:24  willuhn
+ * @N Client access restrictions
+ *
  * Revision 1.3  2006/12/22 13:49:58  willuhn
  * @N server kann an interface gebunden werden
  *

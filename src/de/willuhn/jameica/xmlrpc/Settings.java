@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Settings.java,v $
- * $Revision: 1.5 $
- * $Date: 2006/12/22 13:49:58 $
+ * $Revision: 1.6 $
+ * $Date: 2007/01/24 15:52:24 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -50,6 +50,29 @@ public class Settings
   public static int getPort()
   {
     return SETTINGS.getInt("listener.http.port",8888);
+  }
+  
+  /**
+   * Liefert eine Liste von IPs oder IP-Bereichen, von denen aus der Zugriff erlaubt sein soll.
+   * Standardmaessig koennen Clients von ueberall auf den XMLRPC-Dienst zugreifen, insofern
+   * die in <code>listener.http.address</code> angegebene Adresse erreichbar ist.
+   * Werden hier jedoch Adressen definiert, dann sind Verbindungen nur noch von
+   * diesen Adressen aus moeglich. Verwenden Sie "*" als Wildcard.
+   * Beispiele:
+   * <ul>
+   *   <li>192.168.1.100</li>
+   *   <li>192.168.1.*</li>
+   *   <li>172.16.*.*</li>
+   * </ul>
+   * @return Die Liste der erlaubten Adressen oder <code>null</code> wenn keine Einschraenkung
+   * existiert.
+   */
+  public static String[] getAllowedClients()
+  {
+    String[] list = SETTINGS.getList("listener.http.allowedclients",null);
+    if (list != null && list.length > 0)
+      return list;
+    return null;
   }
   
   /**
@@ -214,6 +237,9 @@ public class Settings
 
 /*********************************************************************
  * $Log: Settings.java,v $
+ * Revision 1.6  2007/01/24 15:52:24  willuhn
+ * @N Client access restrictions
+ *
  * Revision 1.5  2006/12/22 13:49:58  willuhn
  * @N server kann an interface gebunden werden
  *
