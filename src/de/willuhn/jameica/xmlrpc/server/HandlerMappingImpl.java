@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.7 $
- * $Date: 2006/12/22 16:14:07 $
+ * $Revision: 1.8 $
+ * $Date: 2007/02/13 16:00:15 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -88,6 +88,7 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
         if (!service.isShared())
           continue;
 
+        // TODO: Da hier nicht die Instanz sondern nur die Klasse registriert wird, wird der Service bei jedem Request neu instanziiert. Unschoen!
         registerPublicMethods(service.getID(),service.getService().getClass());
         InetAddress host = Settings.getAddress();
         if (host == null)
@@ -120,6 +121,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.8  2007/02/13 16:00:15  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.7  2006/12/22 16:14:07  willuhn
  * @N Ausgabe der IP, an die der Service gebunden wurde
  *
