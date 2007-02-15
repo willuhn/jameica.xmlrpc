@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.8 $
- * $Date: 2007/02/13 16:00:15 $
+ * $Revision: 1.9 $
+ * $Date: 2007/02/15 11:03:58 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -45,6 +45,7 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
     if (initialized)
       return;
    
+    this.setRequestProcessorFactoryFactory(new MyRequestProcessorFactoryFactory());
     this.setAuthenticationHandler(new AuthenticationHandler() {
     
       /**
@@ -114,13 +115,14 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
     init();
     return super.getHandler(pHandlerName);
   }
-  
-  
 }
 
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.9  2007/02/15 11:03:58  willuhn
+ * @B Services wurden bei jedem Request neu instanziiert
+ *
  * Revision 1.8  2007/02/13 16:00:15  willuhn
  * *** empty log message ***
  *
