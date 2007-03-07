@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.10 $
- * $Date: 2007/02/15 11:04:25 $
+ * $Revision: 1.11 $
+ * $Date: 2007/03/07 17:05:09 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -39,8 +39,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
   /**
    * Initialisiert die Handler. Allerdings nicht sofort beim Systemstart sondern erst beim ersten Zugriff.
+   * @throws XmlRpcException
    */
-  private synchronized void init()
+  private synchronized void init() throws XmlRpcException
   {
     if (initialized)
       return;
@@ -89,16 +90,23 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
         if (!service.isShared())
           continue;
 
-        registerPublicMethods(service.getID(),service.getService().getClass());
-        InetAddress host = Settings.getAddress();
-        if (host == null)
-          host = InetAddress.getLocalHost();
-        Logger.info("    service successfully registered. URL: http" + (Settings.getUseSSL() ? "s" : "") + "://" + host.getHostAddress() + ":" + Settings.getPort() + "/xmlrpc/" + service.getID());
+        try
+        {
+          registerPublicMethods(service.getID(),service.getService().getClass());
+          InetAddress host = Settings.getAddress();
+          if (host == null)
+            host = InetAddress.getLocalHost();
+          Logger.info("    service successfully registered. URL: http" + (Settings.getUseSSL() ? "s" : "") + "://" + host.getHostAddress() + ":" + Settings.getPort() + "/xmlrpc/" + service.getID());
+        }
+        catch (Exception e)
+        {
+          Logger.error("    unable to register service " + service.getID() + ", skip service",e);
+        }
       }
     }
     catch (Exception e)
     {
-      Logger.error("unable to register service",e);
+      throw new XmlRpcException("unable to register services",e);
     }
     finally
     {
@@ -119,6 +127,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.11  2007/03/07 17:05:09  willuhn
+ * @B Bei Fehler eines Services nicht gleich die komplette Registrierung abbrechen
+ *
  * Revision 1.10  2007/02/15 11:04:25  willuhn
  * @D
  *
