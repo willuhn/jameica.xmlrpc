@@ -1,7 +1,7 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/XmlRpcServiceImpl.java,v $
+ * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/XmlRpcServiceDescriptorImpl.java,v $
  * $Revision: 1.1 $
- * $Date: 2006/10/31 17:06:26 $
+ * $Date: 2007/04/05 12:14:40 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -24,12 +24,12 @@ import de.willuhn.jameica.plugin.PluginLoader;
 import de.willuhn.jameica.plugin.ServiceDescriptor;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.xmlrpc.Settings;
-import de.willuhn.jameica.xmlrpc.rmi.XmlRpcService;
+import de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor;
 
 /**
  * Container fuer die Eigenschaften eines XML-RPC-Services.
  */
-public class XmlRpcServiceImpl extends UnicastRemoteObject implements XmlRpcService
+public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements XmlRpcServiceDescriptor
 {
   private Manifest manifest         = null;
   private ServiceDescriptor service = null;
@@ -40,7 +40,7 @@ public class XmlRpcServiceImpl extends UnicastRemoteObject implements XmlRpcServ
    * @param service
    * @throws RemoteException
    */
-  public XmlRpcServiceImpl(Manifest manifest, ServiceDescriptor service) throws RemoteException
+  public XmlRpcServiceDescriptorImpl(Manifest manifest, ServiceDescriptor service) throws RemoteException
   {
     super();
     this.manifest = manifest;
@@ -48,7 +48,7 @@ public class XmlRpcServiceImpl extends UnicastRemoteObject implements XmlRpcServ
   }
   
   /**
-   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcService#isShared()
+   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor#isShared()
    */
   public boolean isShared() throws RemoteException
   {
@@ -56,7 +56,7 @@ public class XmlRpcServiceImpl extends UnicastRemoteObject implements XmlRpcServ
   }
   
   /**
-   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcService#setShared(boolean)
+   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor#setShared(boolean)
    */
   public void setShared(boolean shared) throws RemoteException
   {
@@ -64,7 +64,7 @@ public class XmlRpcServiceImpl extends UnicastRemoteObject implements XmlRpcServ
   }
   
   /**
-   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcService#getServiceName()
+   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor#getServiceName()
    */
   public String getServiceName() throws RemoteException
   {
@@ -72,7 +72,7 @@ public class XmlRpcServiceImpl extends UnicastRemoteObject implements XmlRpcServ
   }
   
   /**
-   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcService#getPluginName()
+   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor#getPluginName()
    */
   public String getPluginName() throws RemoteException
   {
@@ -80,7 +80,7 @@ public class XmlRpcServiceImpl extends UnicastRemoteObject implements XmlRpcServ
   }
   
   /**
-   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcService#getService()
+   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor#getService()
    */
   public Service getService() throws RemoteException
   {
@@ -105,7 +105,7 @@ public class XmlRpcServiceImpl extends UnicastRemoteObject implements XmlRpcServ
    */
   public boolean equals(GenericObject arg0) throws RemoteException
   {
-    if (arg0 == null || !(arg0 instanceof XmlRpcService))
+    if (arg0 == null || !(arg0 instanceof XmlRpcServiceDescriptor))
       return false;
     return this.getID().equals(arg0.getID());
   }
@@ -152,7 +152,11 @@ public class XmlRpcServiceImpl extends UnicastRemoteObject implements XmlRpcServ
 
 
 /*********************************************************************
- * $Log: XmlRpcServiceImpl.java,v $
+ * $Log: XmlRpcServiceDescriptorImpl.java,v $
+ * Revision 1.1  2007/04/05 12:14:40  willuhn
+ * @N Liste der Services im Handler statisch
+ * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt
+ *
  * Revision 1.1  2006/10/31 17:06:26  willuhn
  * @N GUI to configure xml-rpc
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Settings.java,v $
- * $Revision: 1.7 $
- * $Date: 2007/04/05 10:42:33 $
+ * $Revision: 1.8 $
+ * $Date: 2007/04/05 12:14:40 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -25,8 +25,8 @@ import de.willuhn.jameica.plugin.Manifest;
 import de.willuhn.jameica.plugin.PluginLoader;
 import de.willuhn.jameica.plugin.ServiceDescriptor;
 import de.willuhn.jameica.system.Application;
-import de.willuhn.jameica.xmlrpc.rmi.XmlRpcService;
-import de.willuhn.jameica.xmlrpc.server.XmlRpcServiceImpl;
+import de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor;
+import de.willuhn.jameica.xmlrpc.server.XmlRpcServiceDescriptorImpl;
 import de.willuhn.logging.Logger;
 import de.willuhn.util.ApplicationException;
 
@@ -40,7 +40,7 @@ public class Settings
    */
   public final static de.willuhn.jameica.system.Settings SETTINGS = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
   
-  private static XmlRpcService[] services = null;
+  private static XmlRpcServiceDescriptor[] services = null;
   
   /**
    * Liefert den TCP-Port fuer den XML-RPC-Server.
@@ -192,12 +192,12 @@ public class Settings
    * Liefert die Liste aller potentiellen Services. Auch jene, welche nicht aktiv sind.
    * @return Liste aller XML-RPC-tauglichen Services.
    */
-  public static XmlRpcService[] getServices()
+  public static XmlRpcServiceDescriptor[] getServices()
   {
     if (services != null)
       return services;
 
-    Logger.info("checking XML-RPC handlers");
+    Logger.info("checking XML-RPC services");
 
     PluginLoader loader = Application.getPluginLoader();
     Iterator manifests  = loader.getInstalledManifests();
@@ -223,7 +223,7 @@ public class Settings
 
           Logger.info("    checking service " + mf.getName() + "." + services[i].getName());
 
-          l.add(new XmlRpcServiceImpl(mf,services[i]));
+          l.add(new XmlRpcServiceDescriptorImpl(mf,services[i]));
         }
         catch (Exception e)
         {
@@ -231,7 +231,7 @@ public class Settings
         }
       }
     }
-    services = (XmlRpcService[]) l.toArray(new XmlRpcService[l.size()]);
+    services = (XmlRpcServiceDescriptor[]) l.toArray(new XmlRpcServiceDescriptor[l.size()]);
     return services;
   }
 }
@@ -239,6 +239,10 @@ public class Settings
 
 /*********************************************************************
  * $Log: Settings.java,v $
+ * Revision 1.8  2007/04/05 12:14:40  willuhn
+ * @N Liste der Services im Handler statisch
+ * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt
+ *
  * Revision 1.7  2007/04/05 10:42:33  willuhn
  * @N Registrieren der XML/RPC-Handler erst nachdem alle Services geladen wurden (mittels SystemMessage). Somit koennen bereits beim Initialisieren die XMLRPC-URLs im Log ausgegeben werden und nicht erst beim ersten Request.
  *

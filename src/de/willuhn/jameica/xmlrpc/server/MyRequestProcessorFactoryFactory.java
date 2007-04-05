@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/MyRequestProcessorFactoryFactory.java,v $
- * $Revision: 1.1 $
- * $Date: 2007/02/15 11:03:58 $
+ * $Revision: 1.2 $
+ * $Date: 2007/04/05 12:14:40 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -21,7 +21,7 @@ import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.server.RequestProcessorFactoryFactory.RequestSpecificProcessorFactoryFactory;
 
 import de.willuhn.jameica.xmlrpc.Settings;
-import de.willuhn.jameica.xmlrpc.rmi.XmlRpcService;
+import de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor;
 import de.willuhn.logging.Logger;
 
 /**
@@ -53,10 +53,10 @@ public class MyRequestProcessorFactoryFactory extends RequestSpecificProcessorFa
     if (service != null)
       return service;
     
-    XmlRpcService[] services = Settings.getServices();
+    XmlRpcServiceDescriptor[] services = Settings.getServices();
     for (int i=0;i<services.length;++i)
     {
-      XmlRpcService s = services[i];
+      XmlRpcServiceDescriptor s = services[i];
       try
       {
         if (!s.isShared())
@@ -85,6 +85,10 @@ public class MyRequestProcessorFactoryFactory extends RequestSpecificProcessorFa
 
 /*********************************************************************
  * $Log: MyRequestProcessorFactoryFactory.java,v $
+ * Revision 1.2  2007/04/05 12:14:40  willuhn
+ * @N Liste der Services im Handler statisch
+ * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt
+ *
  * Revision 1.1  2007/02/15 11:03:58  willuhn
  * @B Services wurden bei jedem Request neu instanziiert
  *

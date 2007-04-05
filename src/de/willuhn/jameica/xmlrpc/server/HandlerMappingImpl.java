@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.13 $
- * $Date: 2007/04/05 11:12:56 $
+ * $Revision: 1.14 $
+ * $Date: 2007/04/05 12:14:40 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -14,6 +14,7 @@
 package de.willuhn.jameica.xmlrpc.server;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcHandler;
@@ -38,50 +39,11 @@ import de.willuhn.logging.Logger;
  */
 public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping implements XmlRpcHandlerMapping, MessageConsumer
 {
+  // Statisch, weil wir die Liste nur einmal ermitteln wollen.
+  private static ArrayList services  = null;
+
   private boolean initialized = false;
   
-  /**
-   * ct.
-   */
-  public HandlerMappingImpl()
-  {
-    Logger.info("applying request processor factory");
-    this.setRequestProcessorFactoryFactory(new MyRequestProcessorFactoryFactory());
-    Logger.info("applying authentication handler");
-    this.setAuthenticationHandler(new AuthenticationHandler() {
-    
-      /**
-       * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping$AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
-       */
-      public boolean isAuthorized(XmlRpcRequest request) throws XmlRpcException
-      {
-        if (!Settings.getUseAuth())
-          return true;
-
-        XmlRpcRequestConfig c = request.getConfig();
-        if (c instanceof XmlRpcHttpRequestConfig)
-        {
-          XmlRpcHttpRequestConfig config = (XmlRpcHttpRequestConfig) c;
-          String password = config.getBasicPassword();
-          if (password == null || password.length() == 0)
-            return false;
-          try
-          {
-            return password.equals(Application.getCallback().getPassword());
-          }
-          catch (Exception e)
-          {
-            Logger.error("error while checking password, denying request",e);
-            return false;
-          }
-        }
-        Logger.warn("authentication enabled, but this is no http request, denying request");
-        return false;
-      }
-    
-    });
-  }
-
   // Wir implementieren noch den Message-Consumer, damit wir die XMLRPC-Handler
   // automatisch registrieren, wenn alle Services initialisiert wurden.
   /**
@@ -107,31 +69,37 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
   {
     SystemMessage m = (SystemMessage) message;
 
-    if (m.getStatusCode() != SystemMessage.SYSTEM_STARTED || initialized)
+    // Haben wir das schonmal gemacht?
+    if (m.getStatusCode() != SystemMessage.SYSTEM_STARTED || services != null)
       return;
 
     try
     {
+      services = new ArrayList();
+
+      // Wir registrieren die Services hier noch nicht sondern ermitteln
+      // nur die Liste und geben die URL aus, damit der Entwickler sofort
+      // sieht, welches Services verfuegbar sind. Die eigentliche
+      // Registrierung machen wir erst beim ersten Request, da das vom
+      // HTTP-Server in einem anderen Thread passiert.
       Logger.info("deploying xml rpc services");
-      XmlRpcServiceDescriptor[] services = Settings.getServices();
-      for (int i=0;i<services.length;++i)
+      XmlRpcServiceDescriptor[] all = Settings.getServices();
+      for (int i=0;i<all.length;++i)
       {
         try
         {
-          XmlRpcServiceDescriptor service = services[i];
+          XmlRpcServiceDescriptor service = all[i];
           if (!service.isShared())
             continue;
 
-          Logger.info("    register service [id: " + service.getID() + ", class: " + service.getService().getClass().getName());
-          registerPublicMethods(service.getID(),service.getService().getClass());
           InetAddress host = Settings.getAddress();
-          if (host == null)
-            host = InetAddress.getLocalHost();
-          Logger.info("    URL: http" + (Settings.getUseSSL() ? "s" : "") + "://" + host.getHostAddress() + ":" + Settings.getPort() + "/xmlrpc/" + service.getID());
+          if (host == null) host = InetAddress.getLocalHost();
+          Logger.info("* XML-RPC-Service: http" + (Settings.getUseSSL() ? "s" : "") + "://" + host.getHostAddress() + ":" + Settings.getPort() + "/xmlrpc/" + service.getID());
+          services.add(service);
         }
         catch (Exception e)
         {
-          Logger.error("    unable to register service, skipping",e);
+          Logger.error("unable to register service, skipping",e);
         }
       }
     }
@@ -140,25 +108,97 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
       Logger.error("unable to register services",e);
       throw e;
     }
+  }
+
+
+  /**
+   * Aktiviert die Services.
+   */
+  private synchronized void init()
+  {
+    if (initialized || services == null)
+      return;
+
+    try
+    {
+      Logger.info("applying request processor factory");
+      this.setRequestProcessorFactoryFactory(new MyRequestProcessorFactoryFactory());
+      Logger.info("applying authentication handler");
+      this.setAuthenticationHandler(new Auth());
+
+      for (int i=0;i<services.size();++i)
+      {
+        try
+        {
+          XmlRpcServiceDescriptor service = (XmlRpcServiceDescriptor) services.get(i);
+          Logger.info("activating service [id: " + service.getID() + "]");
+          registerPublicMethods(service.getID(),service.getService().getClass());
+        }
+        catch (Exception e)
+        {
+          Logger.error("unable to activate service",e);
+        }
+      }
+    }
     finally
     {
       initialized = true;
     }
   }
-
   /**
    * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping#getHandler(java.lang.String)
    */
   public XmlRpcHandler getHandler(String pHandlerName) throws XmlRpcNoSuchHandlerException, XmlRpcException
   {
-    Logger.debug("activating handler: " + pHandlerName);
+    init();
     return super.getHandler(pHandlerName);
+  }
+
+
+  /**
+   * Authentifizierer.
+   */
+  private class Auth implements AuthenticationHandler
+  {
+      
+    /**
+     * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping$AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
+     */
+    public boolean isAuthorized(XmlRpcRequest request) throws XmlRpcException
+    {
+      if (!Settings.getUseAuth())
+        return true;
+  
+      XmlRpcRequestConfig c = request.getConfig();
+      if (c instanceof XmlRpcHttpRequestConfig)
+      {
+        XmlRpcHttpRequestConfig config = (XmlRpcHttpRequestConfig) c;
+        String password = config.getBasicPassword();
+        if (password == null || password.length() == 0)
+          return false;
+        try
+        {
+          return password.equals(Application.getCallback().getPassword());
+        }
+        catch (Exception e)
+        {
+          Logger.error("error while checking password, denying request",e);
+          return false;
+        }
+      }
+      Logger.warn("authentication enabled, but this is no http request, denying request");
+      return false;
+    }
   }
 }
 
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.14  2007/04/05 12:14:40  willuhn
+ * @N Liste der Services im Handler statisch
+ * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt
+ *
  * Revision 1.13  2007/04/05 11:12:56  willuhn
  * *** empty log message ***
  *

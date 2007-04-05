@@ -1,7 +1,7 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/rmi/Attic/XmlRpcService.java,v $
- * $Revision: 1.3 $
- * $Date: 2006/10/31 17:06:26 $
+ * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/rmi/XmlRpcServiceDescriptor.java,v $
+ * $Revision: 1.1 $
+ * $Date: 2007/04/05 12:14:40 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -21,7 +21,7 @@ import de.willuhn.datasource.Service;
 /**
  * Container fuer die Eigenschaften eines XML-RPC-Services.
  */
-public interface XmlRpcService extends GenericObject
+public interface XmlRpcServiceDescriptor extends GenericObject
 {
   /**
    * Prueft, ob der Service via XML-RPC verfuegbar sein soll.
@@ -61,7 +61,11 @@ public interface XmlRpcService extends GenericObject
 
 
 /*********************************************************************
- * $Log: XmlRpcService.java,v $
+ * $Log: XmlRpcServiceDescriptor.java,v $
+ * Revision 1.1  2007/04/05 12:14:40  willuhn
+ * @N Liste der Services im Handler statisch
+ * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt
+ *
  * Revision 1.3  2006/10/31 17:06:26  willuhn
  * @N GUI to configure xml-rpc
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.7 $
- * $Date: 2006/12/22 13:49:58 $
+ * $Revision: 1.8 $
+ * $Date: 2007/04/05 12:14:40 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -49,7 +49,7 @@ import de.willuhn.jameica.messaging.SettingsChangedMessage;
 import de.willuhn.jameica.messaging.StatusBarMessage;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.xmlrpc.Plugin;
-import de.willuhn.jameica.xmlrpc.rmi.XmlRpcService;
+import de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor;
 import de.willuhn.logging.Logger;
 import de.willuhn.util.ApplicationException;
 import de.willuhn.util.I18N;
@@ -168,7 +168,7 @@ public class SettingsView implements Extension
     try
     {
       GenericIterator selected = getServices().getItems();
-      XmlRpcService[] all = de.willuhn.jameica.xmlrpc.Settings.getServices();
+      XmlRpcServiceDescriptor[] all = de.willuhn.jameica.xmlrpc.Settings.getServices();
       for (int i=0;i<all.length;++i)
       {
         all[i].setShared(selected.contains(all[i]) != null);
@@ -282,7 +282,7 @@ public class SettingsView implements Extension
     if (this.services != null)
       return this.services;
     
-    XmlRpcService[] services = de.willuhn.jameica.xmlrpc.Settings.getServices();
+    XmlRpcServiceDescriptor[] services = de.willuhn.jameica.xmlrpc.Settings.getServices();
     this.services = new TablePart(PseudoIterator.fromArray(services),null);
     this.services.setCheckable(true);
     this.services.setMulti(false);
@@ -297,7 +297,7 @@ public class SettingsView implements Extension
       {
         if (item == null)
           return;
-        XmlRpcService service = (XmlRpcService) item.getData();
+        XmlRpcServiceDescriptor service = (XmlRpcServiceDescriptor) item.getData();
         try
         {
           item.setChecked(service.isShared());
@@ -426,6 +426,10 @@ public class SettingsView implements Extension
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
+ * Revision 1.8  2007/04/05 12:14:40  willuhn
+ * @N Liste der Services im Handler statisch
+ * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt
+ *
  * Revision 1.7  2006/12/22 13:49:58  willuhn
  * @N server kann an interface gebunden werden
  *
