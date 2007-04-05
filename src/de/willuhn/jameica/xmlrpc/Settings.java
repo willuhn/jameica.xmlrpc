@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Settings.java,v $
- * $Revision: 1.6 $
- * $Date: 2007/01/24 15:52:24 $
+ * $Revision: 1.7 $
+ * $Date: 2007/04/05 10:42:33 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -18,7 +18,6 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -213,19 +212,22 @@ public class Settings
       ServiceDescriptor[] services = mf.getServices();
       
       Logger.info("  checking plugin " + mf.getName());
+      if (services == null || services.length == 0)
+        continue;
       for (int i=0;i<services.length;++i)
       {
-        if ("listener.http".equals(services[i].getName()) && self.getPluginClass().equals(mf.getPluginClass()))
-          continue; // Das sind wir selbst
-
-        Logger.info("    checking service " + mf.getName() + "." + services[i].getName());
         try
         {
+          if ("listener.http".equals(services[i].getName()) && self.getPluginClass().equals(mf.getPluginClass()))
+            continue; // Das sind wir selbst
+
+          Logger.info("    checking service " + mf.getName() + "." + services[i].getName());
+
           l.add(new XmlRpcServiceImpl(mf,services[i]));
         }
-        catch (RemoteException re)
+        catch (Exception e)
         {
-          Logger.error("unable to load service",re);
+          Logger.error("unable to load service",e);
         }
       }
     }
@@ -237,6 +239,9 @@ public class Settings
 
 /*********************************************************************
  * $Log: Settings.java,v $
+ * Revision 1.7  2007/04/05 10:42:33  willuhn
+ * @N Registrieren der XML/RPC-Handler erst nachdem alle Services geladen wurden (mittels SystemMessage). Somit koennen bereits beim Initialisieren die XMLRPC-URLs im Log ausgegeben werden und nicht erst beim ersten Request.
+ *
  * Revision 1.6  2007/01/24 15:52:24  willuhn
  * @N Client access restrictions
  *
