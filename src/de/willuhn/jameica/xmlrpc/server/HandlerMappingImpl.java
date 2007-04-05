@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.12 $
- * $Date: 2007/04/05 10:42:32 $
+ * $Revision: 1.13 $
+ * $Date: 2007/04/05 11:12:56 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -16,18 +16,20 @@ package de.willuhn.jameica.xmlrpc.server;
 import java.net.InetAddress;
 
 import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.XmlRpcHandler;
 import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.XmlRpcRequestConfig;
 import org.apache.xmlrpc.common.XmlRpcHttpRequestConfig;
 import org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
+import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 
 import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
 import de.willuhn.jameica.messaging.SystemMessage;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.xmlrpc.Settings;
-import de.willuhn.jameica.xmlrpc.rmi.XmlRpcService;
+import de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor;
 import de.willuhn.logging.Logger;
 
 /**
@@ -37,6 +39,48 @@ import de.willuhn.logging.Logger;
 public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping implements XmlRpcHandlerMapping, MessageConsumer
 {
   private boolean initialized = false;
+  
+  /**
+   * ct.
+   */
+  public HandlerMappingImpl()
+  {
+    Logger.info("applying request processor factory");
+    this.setRequestProcessorFactoryFactory(new MyRequestProcessorFactoryFactory());
+    Logger.info("applying authentication handler");
+    this.setAuthenticationHandler(new AuthenticationHandler() {
+    
+      /**
+       * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping$AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
+       */
+      public boolean isAuthorized(XmlRpcRequest request) throws XmlRpcException
+      {
+        if (!Settings.getUseAuth())
+          return true;
+
+        XmlRpcRequestConfig c = request.getConfig();
+        if (c instanceof XmlRpcHttpRequestConfig)
+        {
+          XmlRpcHttpRequestConfig config = (XmlRpcHttpRequestConfig) c;
+          String password = config.getBasicPassword();
+          if (password == null || password.length() == 0)
+            return false;
+          try
+          {
+            return password.equals(Application.getCallback().getPassword());
+          }
+          catch (Exception e)
+          {
+            Logger.error("error while checking password, denying request",e);
+            return false;
+          }
+        }
+        Logger.warn("authentication enabled, but this is no http request, denying request");
+        return false;
+      }
+    
+    });
+  }
 
   // Wir implementieren noch den Message-Consumer, damit wir die XMLRPC-Handler
   // automatisch registrieren, wenn alle Services initialisiert wurden.
@@ -68,53 +112,17 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
     try
     {
-      Logger.info("applying request processor factory");
-      this.setRequestProcessorFactoryFactory(new MyRequestProcessorFactoryFactory());
-      Logger.info("applying authentication handler");
-      this.setAuthenticationHandler(new AuthenticationHandler() {
-      
-        /**
-         * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping$AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
-         */
-        public boolean isAuthorized(XmlRpcRequest request) throws XmlRpcException
-        {
-          if (!Settings.getUseAuth())
-            return true;
-
-          XmlRpcRequestConfig c = request.getConfig();
-          if (c instanceof XmlRpcHttpRequestConfig)
-          {
-            XmlRpcHttpRequestConfig config = (XmlRpcHttpRequestConfig) c;
-            String password = config.getBasicPassword();
-            if (password == null || password.length() == 0)
-              return false;
-            try
-            {
-              return password.equals(Application.getCallback().getPassword());
-            }
-            catch (Exception e)
-            {
-              Logger.error("error while checking password, denying request",e);
-              return false;
-            }
-          }
-          Logger.warn("authentication enabled, but this is no http request, denying request");
-          return false;
-        }
-      
-      });
-
       Logger.info("deploying xml rpc services");
-      XmlRpcService[] services = Settings.getServices();
+      XmlRpcServiceDescriptor[] services = Settings.getServices();
       for (int i=0;i<services.length;++i)
       {
         try
         {
-          XmlRpcService service = services[i];
+          XmlRpcServiceDescriptor service = services[i];
           if (!service.isShared())
             continue;
 
-          Logger.info("    register service " + service.getID());
+          Logger.info("    register service [id: " + service.getID() + ", class: " + service.getService().getClass().getName());
           registerPublicMethods(service.getID(),service.getService().getClass());
           InetAddress host = Settings.getAddress();
           if (host == null)
@@ -137,11 +145,23 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
       initialized = true;
     }
   }
+
+  /**
+   * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping#getHandler(java.lang.String)
+   */
+  public XmlRpcHandler getHandler(String pHandlerName) throws XmlRpcNoSuchHandlerException, XmlRpcException
+  {
+    Logger.debug("activating handler: " + pHandlerName);
+    return super.getHandler(pHandlerName);
+  }
 }
 
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.13  2007/04/05 11:12:56  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.12  2007/04/05 10:42:32  willuhn
  * @N Registrieren der XML/RPC-Handler erst nachdem alle Services geladen wurden (mittels SystemMessage). Somit koennen bereits beim Initialisieren die XMLRPC-URLs im Log ausgegeben werden und nicht erst beim ersten Request.
  *
