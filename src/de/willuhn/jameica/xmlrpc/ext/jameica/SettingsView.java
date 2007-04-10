@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.8 $
- * $Date: 2007/04/05 12:14:40 $
+ * $Revision: 1.9 $
+ * $Date: 2007/04/10 23:27:40 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -20,6 +20,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -167,11 +168,11 @@ public class SettingsView implements Extension
     // Jetzt noch die Freigaben speichern
     try
     {
-      GenericIterator selected = getServices().getItems();
+      List selected = getServices().getItems();
       XmlRpcServiceDescriptor[] all = de.willuhn.jameica.xmlrpc.Settings.getServices();
       for (int i=0;i<all.length;++i)
       {
-        all[i].setShared(selected.contains(all[i]) != null);
+        all[i].setShared(selected.contains(all[i]));
       }
     }
     catch (RemoteException re)
@@ -426,6 +427,9 @@ public class SettingsView implements Extension
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
+ * Revision 1.9  2007/04/10 23:27:40  willuhn
+ * @N TablePart Redesign (removed dependencies from GenericIterator/GenericObject)
+ *
  * Revision 1.8  2007/04/05 12:14:40  willuhn
  * @N Liste der Services im Handler statisch
  * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt
