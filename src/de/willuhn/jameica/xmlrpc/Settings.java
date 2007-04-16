@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Settings.java,v $
- * $Revision: 1.8 $
- * $Date: 2007/04/05 12:14:40 $
+ * $Revision: 1.9 $
+ * $Date: 2007/04/16 12:36:41 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -19,7 +19,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 import de.willuhn.jameica.plugin.Manifest;
 import de.willuhn.jameica.plugin.PluginLoader;
@@ -200,30 +200,30 @@ public class Settings
     Logger.info("checking XML-RPC services");
 
     PluginLoader loader = Application.getPluginLoader();
-    Iterator manifests  = loader.getInstalledManifests();
+    List manifests  = loader.getInstalledManifests();
 
     Manifest self = Application.getPluginLoader().getManifest(Plugin.class);
     
     ArrayList l = new ArrayList();
-    while (manifests.hasNext())
+    for (int i=0;i<manifests.size();++i)
     {
-      Manifest mf = (Manifest) manifests.next();
+      Manifest mf = (Manifest) manifests.get(i);
       
       ServiceDescriptor[] services = mf.getServices();
       
       Logger.info("  checking plugin " + mf.getName());
       if (services == null || services.length == 0)
         continue;
-      for (int i=0;i<services.length;++i)
+      for (int k=0;k<services.length;++k)
       {
         try
         {
-          if ("listener.http".equals(services[i].getName()) && self.getPluginClass().equals(mf.getPluginClass()))
+          if ("listener.http".equals(services[k].getName()) && self.getPluginClass().equals(mf.getPluginClass()))
             continue; // Das sind wir selbst
 
-          Logger.info("    checking service " + mf.getName() + "." + services[i].getName());
+          Logger.info("    checking service " + mf.getName() + "." + services[k].getName());
 
-          l.add(new XmlRpcServiceDescriptorImpl(mf,services[i]));
+          l.add(new XmlRpcServiceDescriptorImpl(mf,services[k]));
         }
         catch (Exception e)
         {
@@ -239,6 +239,9 @@ public class Settings
 
 /*********************************************************************
  * $Log: Settings.java,v $
+ * Revision 1.9  2007/04/16 12:36:41  willuhn
+ * @C getInstalledPlugins und getInstalledManifests liefern nun eine Liste vom Typ "List" statt "Iterator"
+ *
  * Revision 1.8  2007/04/05 12:14:40  willuhn
  * @N Liste der Services im Handler statisch
  * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt
