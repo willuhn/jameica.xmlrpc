@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/EchoServiceImpl.java,v $
- * $Revision: 1.2 $
- * $Date: 2006/10/28 01:05:37 $
+ * $Revision: 1.3 $
+ * $Date: 2007/05/15 15:40:43 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -50,7 +50,7 @@ public class EchoServiceImpl extends UnicastRemoteObject implements EchoService
    */
   public String getName() throws RemoteException
   {
-    return "echo-service";
+    return "Echo-Service";
   }
 
   /**
@@ -100,6 +100,9 @@ public class EchoServiceImpl extends UnicastRemoteObject implements EchoService
 
 /*********************************************************************
  * $Log: EchoServiceImpl.java,v $
+ * Revision 1.3  2007/05/15 15:40:43  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.2  2006/10/28 01:05:37  willuhn
  * @N add bindings on demand
  *

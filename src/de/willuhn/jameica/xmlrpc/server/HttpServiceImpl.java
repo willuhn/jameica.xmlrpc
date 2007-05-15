@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/HttpServiceImpl.java,v $
- * $Revision: 1.6 $
- * $Date: 2006/10/31 17:44:20 $
+ * $Revision: 1.7 $
+ * $Date: 2007/05/15 15:40:43 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -44,7 +44,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
    */
   public String getName() throws RemoteException
   {
-    return "HTTP Listener";
+    return "XML/RPC HTTP-Connector";
   }
 
   /**
@@ -76,6 +76,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
 
     try
     {
+      Logger.info("starting XML/RPC HTTP-Connector");
       this.server = new MyWebServer();
       
       XmlRpcServer xmlRpcServer = this.server.getXmlRpcServer();
@@ -90,8 +91,8 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
     catch (Exception e)
     {
       this.server = null;
-      Logger.error("unable to start http listener",e);
-      throw new RemoteException("unable to start http listener",e);
+      Logger.error("unable to start xml/rpc connector",e);
+      throw new RemoteException("unable to start xml/rpc connector",e);
     }
   }
 
@@ -107,6 +108,7 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
     }
     try
     {
+      Logger.info("stopping XML/RPC HTTP-Connector");
       this.server.shutdown();
     }
     finally
@@ -121,6 +123,9 @@ public class HttpServiceImpl extends UnicastRemoteObject implements
 
 /*********************************************************************
  * $Log: HttpServiceImpl.java,v $
+ * Revision 1.7  2007/05/15 15:40:43  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.6  2006/10/31 17:44:20  willuhn
  * *** empty log message ***
  *
