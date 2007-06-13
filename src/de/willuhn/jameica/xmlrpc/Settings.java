@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Settings.java,v $
- * $Revision: 1.9 $
- * $Date: 2007/04/16 12:36:41 $
+ * $Revision: 1.10 $
+ * $Date: 2007/06/13 14:50:10 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -189,6 +189,24 @@ public class Settings
   }
 
   /**
+   * Liefert true, die Interface-Namen der Services als XML-RPC-Namen verwendet werden sollen.
+   * @return true, wenn die Interface-Namen der Services als XML-RPC-Namen verwendet werden sollen.
+   */
+  public static boolean getUseInterfaceNames()
+  {
+    return SETTINGS.getBoolean("xmlrpc.useinterfacenames",false);
+  }
+  
+  /**
+   * Legt fest, ob die Interface-Namen der Services als XML-RPC-Namen verwendet werden sollen.
+   * @param names true wenn die Interface-Namen der Services als XML-RPC-Namen verwendet werden sollen.
+   */
+  public static void setUseInterfaceNames(boolean names)
+  {
+    SETTINGS.setAttribute("xmlrpc.useinterfacenames",names);
+  }
+
+  /**
    * Liefert die Liste aller potentiellen Services. Auch jene, welche nicht aktiv sind.
    * @return Liste aller XML-RPC-tauglichen Services.
    */
@@ -239,6 +257,9 @@ public class Settings
 
 /*********************************************************************
  * $Log: Settings.java,v $
+ * Revision 1.10  2007/06/13 14:50:10  willuhn
+ * @N Als XML-RPC-Servicenamen koennen nun auch direkt die Interface-Namen verwendet werden. Das ermoeglicht die Verwendung von dynamischen Proxies auf Clientseite.
+ *
  * Revision 1.9  2007/04/16 12:36:41  willuhn
  * @C getInstalledPlugins und getInstalledManifests liefern nun eine Liste vom Typ "List" statt "Iterator"
  *

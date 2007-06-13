@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/XmlRpcServiceDescriptorImpl.java,v $
- * $Revision: 1.1 $
- * $Date: 2007/04/05 12:14:40 $
+ * $Revision: 1.2 $
+ * $Date: 2007/06/13 14:50:10 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -137,6 +137,8 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
    */
   public String getID() throws RemoteException
   {
+    if (Settings.getUseInterfaceNames())
+      return service.getClassname();
     return manifest.getName() + "." + service.getName();
   }
 
@@ -153,6 +155,9 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
 
 /*********************************************************************
  * $Log: XmlRpcServiceDescriptorImpl.java,v $
+ * Revision 1.2  2007/06/13 14:50:10  willuhn
+ * @N Als XML-RPC-Servicenamen koennen nun auch direkt die Interface-Namen verwendet werden. Das ermoeglicht die Verwendung von dynamischen Proxies auf Clientseite.
+ *
  * Revision 1.1  2007/04/05 12:14:40  willuhn
  * @N Liste der Services im Handler statisch
  * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt

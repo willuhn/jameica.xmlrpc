@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.9 $
- * $Date: 2007/04/10 23:27:40 $
+ * $Revision: 1.10 $
+ * $Date: 2007/06/13 14:50:10 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -64,6 +64,7 @@ public class SettingsView implements Extension
   private IntegerInput port   = null;
   private CheckboxInput ssl   = null;
   private CheckboxInput auth  = null;
+  private CheckboxInput name  = null;
   private TablePart services  = null;
   private Input address       = null;
 
@@ -139,6 +140,7 @@ public class SettingsView implements Extension
       tab.addLabelPair(i18n.tr("Server binden an"), getAddress());
       tab.addCheckbox(getUseSSL(), i18n.tr("HTTP-Kommunikation verschlüsseln (HTTPS)"));
       tab.addCheckbox(getUseAuth(), i18n.tr("Benutzerauthentifizierung mittels Jameica Master-Passwort"));
+      tab.addCheckbox(getUseInterfaceNames(), i18n.tr("Java-Interface-Namen als XML-RPC-Namen verwenden"));
       
       tab.addHeadline(i18n.tr("Freigegebene Services"));
       tab.addPart(getServices());
@@ -163,6 +165,7 @@ public class SettingsView implements Extension
     de.willuhn.jameica.xmlrpc.Settings.setPort(in.intValue());
     de.willuhn.jameica.xmlrpc.Settings.setUseAuth(((Boolean) getUseAuth().getValue()).booleanValue());
     de.willuhn.jameica.xmlrpc.Settings.setUseSSL(((Boolean) getUseSSL().getValue()).booleanValue());
+    de.willuhn.jameica.xmlrpc.Settings.setUseInterfaceNames(((Boolean) getUseInterfaceNames().getValue()).booleanValue());
     de.willuhn.jameica.xmlrpc.Settings.setAddress(((AddressObject)getAddress().getValue()).ia);
     
     // Jetzt noch die Freigaben speichern
@@ -223,6 +226,19 @@ public class SettingsView implements Extension
     return this.auth;
   }
   
+  /**
+   * Liefert die Checkbox, um die Interface-Namen als Servicenamen zu verwenden.
+   * @return die Checkbox.
+   */
+  private CheckboxInput getUseInterfaceNames()
+  {
+    if (this.name != null)
+      return this.name;
+    
+    this.name = new CheckboxInput(de.willuhn.jameica.xmlrpc.Settings.getUseInterfaceNames());
+    return this.name;
+  }
+
   /**
    * Liefert den zu verwendenden TCP-Port.
    * @return der TCP-Port.
@@ -427,6 +443,9 @@ public class SettingsView implements Extension
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
+ * Revision 1.10  2007/06/13 14:50:10  willuhn
+ * @N Als XML-RPC-Servicenamen koennen nun auch direkt die Interface-Namen verwendet werden. Das ermoeglicht die Verwendung von dynamischen Proxies auf Clientseite.
+ *
  * Revision 1.9  2007/04/10 23:27:40  willuhn
  * @N TablePart Redesign (removed dependencies from GenericIterator/GenericObject)
  *
