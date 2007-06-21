@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.10 $
- * $Date: 2007/06/13 14:50:10 $
+ * $Revision: 1.11 $
+ * $Date: 2007/06/21 18:31:56 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -132,6 +132,7 @@ public class SettingsView implements Extension
           auth     = null;
           services = null;
           address  = null;
+          name     = null;
           Application.getMessagingFactory().unRegisterMessageConsumer(consumer);
         }
       
@@ -443,6 +444,9 @@ public class SettingsView implements Extension
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
+ * Revision 1.11  2007/06/21 18:31:56  willuhn
+ * @B ClassCastException
+ *
  * Revision 1.10  2007/06/13 14:50:10  willuhn
  * @N Als XML-RPC-Servicenamen koennen nun auch direkt die Interface-Namen verwendet werden. Das ermoeglicht die Verwendung von dynamischen Proxies auf Clientseite.
  *
