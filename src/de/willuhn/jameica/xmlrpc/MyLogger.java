@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/MyLogger.java,v $
- * $Revision: 1.2 $
- * $Date: 2006/12/22 16:14:38 $
+ * $Revision: 1.3 $
+ * $Date: 2007/07/06 13:20:31 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -64,8 +64,6 @@ public class MyLogger implements Log
       return;
     Logger.error(name + ": " + arg0.toString());
   }
-
-  private long last = 0;
   
   /**
    * @see org.apache.commons.logging.Log#error(java.lang.Object, java.lang.Throwable)
@@ -77,22 +75,14 @@ public class MyLogger implements Log
 
     if (arg1 instanceof XmlRpcNotAuthorizedException)
     {
-      // Wir loggen beim ersten Mal noch nicht.
-      // Grund: Der XML-RPC-Client von Perl versucht
-      // es immer erstmal ohne Authentifizierung.
-      // Die erste ignorieren wir. Erst bei der zweiten schlagen
-      // wir Alarm.
-      if (System.currentTimeMillis() - last > 500l)
-      {
-        // Erster Versuch. Denn ignorieren wir noch
-        // Wir merken uns aber die Zeit des Versuchs
-        last = System.currentTimeMillis();
-        return;
-      }
-      Logger.error("unauthorized request to xml-rpc service");
+      // Loggen wir nur in DEBUG-Level, weil
+      // viele XML-RPC-Clients immer erstmal ein
+      // anonymes Login versuchen
+      
+      Logger.debug("unauthorized request to xml-rpc service");
       return;
     }
-    Logger.error(name + ": " + arg0.toString(),arg1);
+    Logger.error(name + ": " + (arg0 != null ? arg0.toString() : ""),arg1);
   }
 
   /**
@@ -228,6 +218,9 @@ public class MyLogger implements Log
 
 /*********************************************************************
  * $Log: MyLogger.java,v $
+ * Revision 1.3  2007/07/06 13:20:31  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.2  2006/12/22 16:14:38  willuhn
  * @N Nicht autorisierte Requests erst beim zweiten Fehlversuch binnen 0,5 sec loggen
  *
