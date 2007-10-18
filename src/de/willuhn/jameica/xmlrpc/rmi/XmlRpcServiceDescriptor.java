@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/rmi/XmlRpcServiceDescriptor.java,v $
- * $Revision: 1.1 $
- * $Date: 2007/04/05 12:14:40 $
+ * $Revision: 1.2 $
+ * $Date: 2007/10/18 22:13:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -57,11 +57,21 @@ public interface XmlRpcServiceDescriptor extends GenericObject
    * @throws RemoteException
    */
   public Service getService() throws RemoteException;
+  
+  /**
+   * Liefert die XML-RPC URL des Services.
+   * @return die XML-RPC URL.
+   * @throws RemoteException
+   */
+  public String getURL() throws RemoteException;
 }
 
 
 /*********************************************************************
  * $Log: XmlRpcServiceDescriptor.java,v $
+ * Revision 1.2  2007/10/18 22:13:14  willuhn
+ * @N XML-RPC URL via Service-Descriptor abfragbar
+ *
  * Revision 1.1  2007/04/05 12:14:40  willuhn
  * @N Liste der Services im Handler statisch
  * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt

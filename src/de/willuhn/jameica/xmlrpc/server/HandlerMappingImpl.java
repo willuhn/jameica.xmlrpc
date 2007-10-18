@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.14 $
- * $Date: 2007/04/05 12:14:40 $
+ * $Revision: 1.15 $
+ * $Date: 2007/10/18 22:13:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,7 +13,6 @@
 
 package de.willuhn.jameica.xmlrpc.server;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -92,9 +91,7 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
           if (!service.isShared())
             continue;
 
-          InetAddress host = Settings.getAddress();
-          if (host == null) host = InetAddress.getLocalHost();
-          Logger.info("* XML-RPC-Service: http" + (Settings.getUseSSL() ? "s" : "") + "://" + host.getHostAddress() + ":" + Settings.getPort() + "/xmlrpc/" + service.getID());
+          Logger.info("* XML-RPC-Service: " + service.getURL());
           services.add(service);
         }
         catch (Exception e)
@@ -195,6 +192,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.15  2007/10/18 22:13:14  willuhn
+ * @N XML-RPC URL via Service-Descriptor abfragbar
+ *
  * Revision 1.14  2007/04/05 12:14:40  willuhn
  * @N Liste der Services im Handler statisch
  * @C XmlRpcService in XmlRpcServiceDescriptor umbenannt

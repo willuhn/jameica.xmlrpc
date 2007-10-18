@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/XmlRpcServiceDescriptorImpl.java,v $
- * $Revision: 1.2 $
- * $Date: 2007/06/13 14:50:10 $
+ * $Revision: 1.3 $
+ * $Date: 2007/10/18 22:13:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,6 +13,8 @@
 
 package de.willuhn.jameica.xmlrpc.server;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -150,11 +152,31 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
     return "servicename";
   }
 
+  /**
+   * @see de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor#getURL()
+   */
+  public String getURL() throws RemoteException
+  {
+    try
+    {
+      InetAddress host = Settings.getAddress();
+      if (host == null) host = InetAddress.getLocalHost();
+      return "http" + (Settings.getUseSSL() ? "s" : "") + "://" + host.getHostAddress() + ":" + Settings.getPort() + "/xmlrpc/" + this.getID();
+    }
+    catch (UnknownHostException e)
+    {
+      throw new RemoteException(e.getMessage(),e);
+    }
+  }
+
 }
 
 
 /*********************************************************************
  * $Log: XmlRpcServiceDescriptorImpl.java,v $
+ * Revision 1.3  2007/10/18 22:13:14  willuhn
+ * @N XML-RPC URL via Service-Descriptor abfragbar
+ *
  * Revision 1.2  2007/06/13 14:50:10  willuhn
  * @N Als XML-RPC-Servicenamen koennen nun auch direkt die Interface-Namen verwendet werden. Das ermoeglicht die Verwendung von dynamischen Proxies auf Clientseite.
  *
