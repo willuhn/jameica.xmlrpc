@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.15 $
- * $Date: 2007/10/18 22:13:14 $
+ * $Revision: 1.16 $
+ * $Date: 2007/11/16 18:34:06 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -159,7 +159,7 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
   {
       
     /**
-     * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping$AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
+     * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping.AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
      */
     public boolean isAuthorized(XmlRpcRequest request) throws XmlRpcException
     {
@@ -192,6 +192,10 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.16  2007/11/16 18:34:06  willuhn
+ * @D javadoc fixed
+ * @R removed unused methods/deprecated methods
+ *
  * Revision 1.15  2007/10/18 22:13:14  willuhn
  * @N XML-RPC URL via Service-Descriptor abfragbar
  *
