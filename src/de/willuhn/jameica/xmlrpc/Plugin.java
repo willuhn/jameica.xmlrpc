@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/Plugin.java,v $
- * $Revision: 1.4 $
- * $Date: 2007/11/05 13:01:09 $
+ * $Revision: 1.5 $
+ * $Date: 2007/12/06 09:32:01 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -25,7 +25,7 @@ public class Plugin extends AbstractPlugin
 {
 
   /**
-   * @ct.
+   * @ct
    */
   public Plugin()
   {
@@ -66,6 +66,9 @@ public class Plugin extends AbstractPlugin
 
 /*********************************************************************
  * $Log: Plugin.java,v $
+ * Revision 1.5  2007/12/06 09:32:01  willuhn
+ * @D javadoc warnings
+ *
  * Revision 1.4  2007/11/05 13:01:09  willuhn
  * @C Compiler-Warnings
  *
