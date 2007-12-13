@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/XmlRpcServiceDescriptorImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2007/10/18 22:13:14 $
+ * $Revision: 1.4 $
+ * $Date: 2007/12/13 16:11:51 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -14,7 +14,6 @@
 package de.willuhn.jameica.xmlrpc.server;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -160,10 +159,10 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
     try
     {
       InetAddress host = Settings.getAddress();
-      if (host == null) host = InetAddress.getLocalHost();
-      return "http" + (Settings.getUseSSL() ? "s" : "") + "://" + host.getHostAddress() + ":" + Settings.getPort() + "/xmlrpc/" + this.getID();
+      String address = host == null ? Application.getCallback().getHostname() : host.getHostAddress();
+      return "http" + (Settings.getUseSSL() ? "s" : "") + "://" + address + ":" + Settings.getPort() + "/xmlrpc/" + this.getID();
     }
-    catch (UnknownHostException e)
+    catch (Exception e)
     {
       throw new RemoteException(e.getMessage(),e);
     }
@@ -174,6 +173,9 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
 
 /*********************************************************************
  * $Log: XmlRpcServiceDescriptorImpl.java,v $
+ * Revision 1.4  2007/12/13 16:11:51  willuhn
+ * @N Generischer Message-Queue-Service
+ *
  * Revision 1.3  2007/10/18 22:13:14  willuhn
  * @N XML-RPC URL via Service-Descriptor abfragbar
  *
