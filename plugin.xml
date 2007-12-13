@@ -16,7 +16,6 @@
     <service name="echo"           depends="" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.EchoService" />
     <service name="listener.http"  depends="" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.HttpService" />
     <service name="lookup"         depends="" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.LookupService" />
-    <service name="queue"          depends="" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.QueueService" />
   </services>
 
   <extensions>

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/Attic/LookupServiceImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2007/12/13 16:11:51 $
+ * $Revision: 1.4 $
+ * $Date: 2007/12/13 23:30:10 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -148,13 +148,15 @@ public class LookupServiceImpl extends UnicastRemoteObject implements
       
       s = s.trim(); // Zeilenumbruch am Ende entfernen
       
-      if (!s.equals("jameica.xmlrpc.queue"))
+      // Wenn der Request nicht nur Buchstaben und Punkte enthielt, 
+      // ignorieren wir ihn
+      if (s.matches("[^a-zA-Z\\.]")) 
       {
         Logger.debug("ignoring message: " + s);
         return; // nix sinnvolles
       }
       
-      Logger.info("got lookup request for queue url from " + sender.getCanonicalHostName());
+      Logger.info("got lookup request for service " + s + " from " + sender.getCanonicalHostName());
       
       Manifest mf = Application.getPluginLoader().getManifest(Plugin.class);
       XmlRpcServiceDescriptor[] services = de.willuhn.jameica.xmlrpc.Settings.getServices();
@@ -164,8 +166,8 @@ public class LookupServiceImpl extends UnicastRemoteObject implements
         if (plugin == null || !plugin.equals(mf.getName()))
           continue;
 
-        String name = services[i].getServiceName();
-        if (name == null || !name.equals("queue"))
+        String id = services[i].getID();
+        if (id == null || id.length() == 0)
           continue;
         
         String url = services[i].getURL();
@@ -174,11 +176,15 @@ public class LookupServiceImpl extends UnicastRemoteObject implements
           Logger.warn("no xml-rpc url defined for queue service");
           return;
         }
-        Logger.info("sending url: " + url);
-        send(url.getBytes());
-        return;
+        
+        if (id.equals(s))
+        {
+          Logger.info("sending url: " + url);
+          send(url.getBytes());
+          return;
+        }
       }
-      Logger.warn("unable to find xml-rpc url for queue service");
+      Logger.warn("xml-rpc service " + s + " unknown");
     }
   }
 }
@@ -186,6 +192,9 @@ public class LookupServiceImpl extends UnicastRemoteObject implements
 
 /*********************************************************************
  * $Log: LookupServiceImpl.java,v $
+ * Revision 1.4  2007/12/13 23:30:10  willuhn
+ * @R Queue verschoben nach jameica.messaging
+ *
  * Revision 1.3  2007/12/13 16:11:51  willuhn
  * @N Generischer Message-Queue-Service
  *
