@@ -2,7 +2,7 @@
 
 <plugin name="jameica.xmlrpc" version="1.0" class="de.willuhn.jameica.xmlrpc.Plugin">
 
-  <description>Meta-Plugin, welches andere Plugins um XML-RPC-Funktionalitaet erweitert</description>
+  <description>Plugin, über das Jameica-Services via XML-RPC verfügbar gemacht werden können</description>
   <url></url>
   <homepage>http://www.willuhn.de/projects/jameica</homepage>
   <license>GPL - http://www.gnu.org/copyleft/gpl.html</license>
