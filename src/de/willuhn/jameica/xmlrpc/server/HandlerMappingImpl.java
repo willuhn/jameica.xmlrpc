@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.16 $
- * $Date: 2007/11/16 18:34:06 $
+ * $Revision: 1.17 $
+ * $Date: 2007/12/14 13:28:40 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -24,6 +24,7 @@ import org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 
+import de.willuhn.jameica.messaging.LookupService;
 import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
 import de.willuhn.jameica.messaging.SystemMessage;
@@ -93,6 +94,7 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
           Logger.info("* XML-RPC-Service: " + service.getURL());
           services.add(service);
+          LookupService.register("xmlrpc:" + service.getID(),service.getURL());
         }
         catch (Exception e)
         {
@@ -192,6 +194,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.17  2007/12/14 13:28:40  willuhn
+ * @C Lookup-Service nach Jameica verschoben
+ *
  * Revision 1.16  2007/11/16 18:34:06  willuhn
  * @D javadoc fixed
  * @R removed unused methods/deprecated methods
