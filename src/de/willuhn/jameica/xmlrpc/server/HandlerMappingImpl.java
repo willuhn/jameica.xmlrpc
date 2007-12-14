@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.17 $
- * $Date: 2007/12/14 13:28:40 $
+ * $Revision: 1.18 $
+ * $Date: 2007/12/14 13:41:01 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -82,8 +82,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
       // sieht, welches Services verfuegbar sind. Die eigentliche
       // Registrierung machen wir erst beim ersten Request, da das vom
       // HTTP-Server in einem anderen Thread passiert.
-      Logger.info("deploying xml rpc services");
+      Logger.info("deploying xmlrpc services");
       XmlRpcServiceDescriptor[] all = Settings.getServices();
+      int count = 0;
       for (int i=0;i<all.length;++i)
       {
         try
@@ -94,6 +95,7 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
           Logger.info("* XML-RPC-Service: " + service.getURL());
           services.add(service);
+          count++;
           LookupService.register("xmlrpc:" + service.getID(),service.getURL());
         }
         catch (Exception e)
@@ -101,6 +103,7 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
           Logger.error("unable to register service, skipping",e);
         }
       }
+      Logger.info(count + " xmlrpc services deployed");
     }
     catch (Exception e)
     {
@@ -194,6 +197,9 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.18  2007/12/14 13:41:01  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.17  2007/12/14 13:28:40  willuhn
  * @C Lookup-Service nach Jameica verschoben
  *
