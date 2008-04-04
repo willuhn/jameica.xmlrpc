@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/HandlerMappingImpl.java,v $
- * $Revision: 1.18 $
- * $Date: 2007/12/14 13:41:01 $
+ * $Revision: 1.19 $
+ * $Date: 2008/04/04 00:17:13 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -17,18 +17,11 @@ import java.util.ArrayList;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcHandler;
-import org.apache.xmlrpc.XmlRpcRequest;
-import org.apache.xmlrpc.XmlRpcRequestConfig;
-import org.apache.xmlrpc.common.XmlRpcHttpRequestConfig;
 import org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 
 import de.willuhn.jameica.messaging.LookupService;
-import de.willuhn.jameica.messaging.Message;
-import de.willuhn.jameica.messaging.MessageConsumer;
-import de.willuhn.jameica.messaging.SystemMessage;
-import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.xmlrpc.Settings;
 import de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor;
 import de.willuhn.logging.Logger;
@@ -37,54 +30,26 @@ import de.willuhn.logging.Logger;
  * Implementiert das Mapping von XML-RPC-Namen auf Klassen.
  * @author willuhn
  */
-public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping implements XmlRpcHandlerMapping, MessageConsumer
+public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping implements XmlRpcHandlerMapping
 {
   // Statisch, weil wir die Liste nur einmal ermitteln wollen.
   private static ArrayList services  = null;
 
-  private boolean initialized = false;
-  
-  // Wir implementieren noch den Message-Consumer, damit wir die XMLRPC-Handler
-  // automatisch registrieren, wenn alle Services initialisiert wurden.
   /**
-   * @see de.willuhn.jameica.messaging.MessageConsumer#autoRegister()
+   * Initialisiert die Handler.
+   * @throws XmlRpcException
    */
-  public boolean autoRegister()
+  private synchronized void init() throws XmlRpcException
   {
-    return true;
-  }
-
-  /**
-   * @see de.willuhn.jameica.messaging.MessageConsumer#getExpectedMessageTypes()
-   */
-  public Class[] getExpectedMessageTypes()
-  {
-    return new Class[]{SystemMessage.class};
-  }
-
-  /**
-   * @see de.willuhn.jameica.messaging.MessageConsumer#handleMessage(de.willuhn.jameica.messaging.Message)
-   */
-  public synchronized void handleMessage(Message message) throws Exception
-  {
-    SystemMessage m = (SystemMessage) message;
-
-    // Haben wir das schonmal gemacht?
-    if (m.getStatusCode() != SystemMessage.SYSTEM_STARTED || services != null)
+    if (services != null)
       return;
-
+    
     try
     {
       services = new ArrayList();
+      this.setRequestProcessorFactoryFactory(new MyRequestProcessorFactoryFactory());
 
-      // Wir registrieren die Services hier noch nicht sondern ermitteln
-      // nur die Liste und geben die URL aus, damit der Entwickler sofort
-      // sieht, welches Services verfuegbar sind. Die eigentliche
-      // Registrierung machen wir erst beim ersten Request, da das vom
-      // HTTP-Server in einem anderen Thread passiert.
-      Logger.info("deploying xmlrpc services");
       XmlRpcServiceDescriptor[] all = Settings.getServices();
-      int count = 0;
       for (int i=0;i<all.length;++i)
       {
         try
@@ -93,9 +58,8 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
           if (!service.isShared())
             continue;
 
-          Logger.info("* XML-RPC-Service: " + service.getURL());
+          registerPublicMethods(service.getID(),service.getService().getClass());
           services.add(service);
-          count++;
           LookupService.register("xmlrpc:" + service.getID(),service.getURL());
         }
         catch (Exception e)
@@ -103,50 +67,14 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
           Logger.error("unable to register service, skipping",e);
         }
       }
-      Logger.info(count + " xmlrpc services deployed");
     }
     catch (Exception e)
     {
-      Logger.error("unable to register services",e);
-      throw e;
+      throw new XmlRpcException("unable to register services",e);
     }
   }
 
 
-  /**
-   * Aktiviert die Services.
-   */
-  private synchronized void init()
-  {
-    if (initialized || services == null)
-      return;
-
-    try
-    {
-      Logger.info("applying request processor factory");
-      this.setRequestProcessorFactoryFactory(new MyRequestProcessorFactoryFactory());
-      Logger.info("applying authentication handler");
-      this.setAuthenticationHandler(new Auth());
-
-      for (int i=0;i<services.size();++i)
-      {
-        try
-        {
-          XmlRpcServiceDescriptor service = (XmlRpcServiceDescriptor) services.get(i);
-          Logger.info("activating service [id: " + service.getID() + "]");
-          registerPublicMethods(service.getID(),service.getService().getClass());
-        }
-        catch (Exception e)
-        {
-          Logger.error("unable to activate service",e);
-        }
-      }
-    }
-    finally
-    {
-      initialized = true;
-    }
-  }
   /**
    * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping#getHandler(java.lang.String)
    */
@@ -155,48 +83,16 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
     init();
     return super.getHandler(pHandlerName);
   }
-
-
-  /**
-   * Authentifizierer.
-   */
-  private class Auth implements AuthenticationHandler
-  {
-      
-    /**
-     * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping.AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
-     */
-    public boolean isAuthorized(XmlRpcRequest request) throws XmlRpcException
-    {
-      if (!Settings.getUseAuth())
-        return true;
-  
-      XmlRpcRequestConfig c = request.getConfig();
-      if (c instanceof XmlRpcHttpRequestConfig)
-      {
-        XmlRpcHttpRequestConfig config = (XmlRpcHttpRequestConfig) c;
-        String password = config.getBasicPassword();
-        if (password == null || password.length() == 0)
-          return false;
-        try
-        {
-          return password.equals(Application.getCallback().getPassword());
-        }
-        catch (Exception e)
-        {
-          Logger.error("error while checking password, denying request",e);
-          return false;
-        }
-      }
-      Logger.warn("authentication enabled, but this is no http request, denying request");
-      return false;
-    }
-  }
 }
 
 
 /*********************************************************************
  * $Log: HandlerMappingImpl.java,v $
+ * Revision 1.19  2008/04/04 00:17:13  willuhn
+ * @N Apache XML-RPC von 3.0 auf 3.1 aktualisiert
+ * @N jameica.xmlrpc ist jetzt von jameica.webadmin abhaengig
+ * @N jameica.xmlrpc nutzt jetzt keinen eigenen embedded Webserver mehr sondern den Jetty von jameica.webadmin mittels Servlet. Damit kann nun XML-RPC ueber den gleichen TCP-Port (8080) gemacht werden, wo auch die restlichen Webfrontends laufen -> spart einen TCP-Port und skaliert besser wegen Multi-Threading-Support in Jetty
+ *
  * Revision 1.18  2007/12/14 13:41:01  willuhn
  * *** empty log message ***
  *

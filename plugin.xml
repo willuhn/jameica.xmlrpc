@@ -7,14 +7,17 @@
   <homepage>http://www.willuhn.de/projects/jameica</homepage>
   <license>GPL - http://www.gnu.org/copyleft/gpl.html</license>
 
+  <requires>
+    <import plugin="jameica.webadmin"/>
+  </requires>
+
   <classfinder>
     <include>jameica\.xmlrpc\.jar</include>
     <include>.*\.class</include>
   </classfinder>
 
   <services>
-    <service name="echo"           depends="" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.EchoService" />
-    <service name="listener.http"  depends="" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.HttpService" />
+    <service name="echo" depends="" autostart="true" class="de.willuhn.jameica.xmlrpc.rmi.EchoService" />
   </services>
 
   <extensions>

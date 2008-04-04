@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/XmlRpcServiceDescriptorImpl.java,v $
- * $Revision: 1.4 $
- * $Date: 2007/12/13 16:11:51 $
+ * $Revision: 1.5 $
+ * $Date: 2008/04/04 00:17:13 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -158,9 +158,18 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
   {
     try
     {
-      InetAddress host = Settings.getAddress();
+      InetAddress host = de.willuhn.jameica.webadmin.Settings.getAddress();
       String address = host == null ? Application.getCallback().getHostname() : host.getHostAddress();
-      return "http" + (Settings.getUseSSL() ? "s" : "") + "://" + address + ":" + Settings.getPort() + "/xmlrpc/" + this.getID();
+      StringBuffer sb = new StringBuffer();
+      sb.append("http");
+      if (de.willuhn.jameica.webadmin.Settings.getUseSSL()) sb.append("s");
+      sb.append("://");
+      sb.append(address);
+      sb.append(":");
+      sb.append(de.willuhn.jameica.webadmin.Settings.getPort());
+      sb.append("/xmlrpc/");
+      sb.append(this.getID());
+      return sb.toString();
     }
     catch (Exception e)
     {
@@ -173,6 +182,11 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
 
 /*********************************************************************
  * $Log: XmlRpcServiceDescriptorImpl.java,v $
+ * Revision 1.5  2008/04/04 00:17:13  willuhn
+ * @N Apache XML-RPC von 3.0 auf 3.1 aktualisiert
+ * @N jameica.xmlrpc ist jetzt von jameica.webadmin abhaengig
+ * @N jameica.xmlrpc nutzt jetzt keinen eigenen embedded Webserver mehr sondern den Jetty von jameica.webadmin mittels Servlet. Damit kann nun XML-RPC ueber den gleichen TCP-Port (8080) gemacht werden, wo auch die restlichen Webfrontends laufen -> spart einen TCP-Port und skaliert besser wegen Multi-Threading-Support in Jetty
+ *
  * Revision 1.4  2007/12/13 16:11:51  willuhn
  * @N Generischer Message-Queue-Service
  *

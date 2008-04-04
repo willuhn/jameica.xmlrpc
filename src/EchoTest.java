@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/EchoTest.java,v $
- * $Revision: 1.8 $
- * $Date: 2006/11/08 00:01:45 $
+ * $Revision: 1.9 $
+ * $Date: 2008/04/04 00:17:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -39,19 +39,23 @@ public class EchoTest
   public static void main(String[] args) throws Exception
   {
     // Die URL, unter der Jameica auf XML-RPC Anfragen reagiert.
-    // Der Port 8888 kann ueber Datei->Einstellungen->XML-RPC festgelegt werden
+    // Der Port 8080 kann ueber Datei->Einstellungen->HTTP festgelegt werden
     // Wenn die Jameica-Installation auf einem anderen Rechner laeuft, kann
     // auch eine andere IP verwendet werden.
     // Ist in Jameica die Verwendung von SSL fuer XML-RPC-Anfragen aktiv,
     // muss die URL mit "https" beginnen
-    String url = "https://127.0.0.1:8888/xmlrpc";
+
+    // Der Slash am Ende ist wichtig. Der XML-RPC-Server macht bei Bedarf
+    // zwar automatisch ein HTTP-Redirect, der XML-RPC-Client versteht
+    // dieses redirect jedoch nicht.
+    String url = "https://localhost:8080/xmlrpc/";
 
     // Client-Config erzeugen
     XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
     
     // Jameica-Masterpasswort
     // Falls in Jameica die Abfrage des Passwortes bei XML-RPC-Anfragen aktiviert ist
-    config.setBasicPassword("geheim");
+    config.setBasicPassword("test");
     
     // Ein Username muss leider angegeben werden, wenn in Jameica die
     // Passwort-Kontrolle aktiv ist. Sonst wirft Apache XML-RPC einen Fehler.
@@ -73,50 +77,51 @@ public class EchoTest
     }
     
     // Client erzeugen und Config uebernehmen
-    XmlRpcClient client = new XmlRpcClient();
+    final XmlRpcClient client = new XmlRpcClient();
     client.setConfig(config);
 
     // Echo-Testservice aufrufen
     // Wir uebergeben als Parameter ein "Hello World"
+    System.out.println(url);
     System.out.println("Test 1:");
     String echo = (String) client.execute("jameica.xmlrpc.echo.echo",new String[]{"Hello World"});
     System.out.println(echo);
 
-    // Methode "list" auf dem Service "hibiscus.xmlrpc.konto" ausfuehren.
-    // Freigegebene Services siehe Jameica: Datei->Einstellungen->XML-RPC
-    // Der Parameter "(Object[]) null" muss angegeben werden, auch wenn
-    // die Methode keine Parameter erwartet.
-    System.out.println("Test 2:");
-    Object[] konten = (Object[]) client.execute("hibiscus.xmlrpc.konto.list",(Object[]) null);
-    
-    for (int i=0;i<konten.length;++i)
-    {
-      System.out.println(konten[i]);
-    }
-
-    // Methode "list" auf dem Service "hibiscus.xmlrpc.ueberweisung" ausfuehren.
-    System.out.println("Test 3:");
-    Object[] ueberweisungen = (Object[]) client.execute("hibiscus.xmlrpc.ueberweisung.list",(Object[]) null);
-    
-    for (int i=0;i<ueberweisungen.length;++i)
-    {
-      System.out.println(ueberweisungen[i]);
-    }
-  
-    // Neue Ueberweisung anlegen
-    System.out.println("Test 4:");
-    Object[] params = new Object[]
-      {
-        "0",                // ID des Kontos, auf dem die Ueberweisung ausgefuehrt werden soll
-        "123456789",        // Kontonummer des Empfaengers
-        "12345678",         // BLZ des Empfaenger-Kontos
-        "Max Mustermann",   // Name des Empfaengers
-        "Das ist ein Test", // Verwendungszweck
-        new Double(1.00),   // Betrag (1,- EUR)
-      };
-    Object returnCode = (Object) client.execute("hibiscus.xmlrpc.ueberweisung.create",params);
-    System.out.println(returnCode);
-
+//    // Methode "list" auf dem Service "hibiscus.xmlrpc.konto" ausfuehren.
+//    // Freigegebene Services siehe Jameica: Datei->Einstellungen->XML-RPC
+//    // Der Parameter "(Object[]) null" muss angegeben werden, auch wenn
+//    // die Methode keine Parameter erwartet.
+//    System.out.println("Test 2:");
+//    Object[] konten = (Object[]) client.execute("hibiscus.xmlrpc.konto.list",(Object[]) null);
+//    
+//    for (int i=0;i<konten.length;++i)
+//    {
+//      System.out.println(konten[i]);
+//    }
+//
+//    // Methode "list" auf dem Service "hibiscus.xmlrpc.ueberweisung" ausfuehren.
+//    System.out.println("Test 3:");
+//    Object[] ueberweisungen = (Object[]) client.execute("hibiscus.xmlrpc.ueberweisung.list",(Object[]) null);
+//    
+//    for (int i=0;i<ueberweisungen.length;++i)
+//    {
+//      System.out.println(ueberweisungen[i]);
+//    }
+//  
+//    // Neue Ueberweisung anlegen
+//    System.out.println("Test 4:");
+//    Object[] params = new Object[]
+//      {
+//        "0",                // ID des Kontos, auf dem die Ueberweisung ausgefuehrt werden soll
+//        "123456789",        // Kontonummer des Empfaengers
+//        "12345678",         // BLZ des Empfaenger-Kontos
+//        "Max Mustermann",   // Name des Empfaengers
+//        "Das ist ein Test", // Verwendungszweck
+//        new Double(1.00),   // Betrag (1,- EUR)
+//      };
+//    Object returnCode = (Object) client.execute("hibiscus.xmlrpc.ueberweisung.create",params);
+//    System.out.println(returnCode);
+//
   }
 
 
@@ -189,6 +194,11 @@ public class EchoTest
 
 /*********************************************************************
  * $Log: EchoTest.java,v $
+ * Revision 1.9  2008/04/04 00:17:14  willuhn
+ * @N Apache XML-RPC von 3.0 auf 3.1 aktualisiert
+ * @N jameica.xmlrpc ist jetzt von jameica.webadmin abhaengig
+ * @N jameica.xmlrpc nutzt jetzt keinen eigenen embedded Webserver mehr sondern den Jetty von jameica.webadmin mittels Servlet. Damit kann nun XML-RPC ueber den gleichen TCP-Port (8080) gemacht werden, wo auch die restlichen Webfrontends laufen -> spart einen TCP-Port und skaliert besser wegen Multi-Threading-Support in Jetty
+ *
  * Revision 1.8  2006/11/08 00:01:45  willuhn
  * *** empty log message ***
  *
