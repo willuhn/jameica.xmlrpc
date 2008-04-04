@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jameica"/>
 	<classpathentry exported="true" kind="lib" path="lib/resolver.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jameica.webadmin"/>
-	<classpathentry kind="lib" path="lib/xmlrpc-server-3.1.jar" sourcepath="lib.src/xmlrpc-server-3.1-sources.jar"/>
+	<classpathentry sourcepath="lib.src/xmlrpc-server-3.1-sources.jar" kind="lib" path="lib/xmlrpc-server-3.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-1.5"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
