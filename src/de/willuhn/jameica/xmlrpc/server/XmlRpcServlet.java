@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/XmlRpcServlet.java,v $
- * $Revision: 1.1 $
- * $Date: 2008/04/04 00:17:13 $
+ * $Revision: 1.2 $
+ * $Date: 2008/04/10 11:17:13 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -52,7 +52,7 @@ public class XmlRpcServlet extends HttpServlet
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
   {
     response.setHeader("Allow","POST"); // http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-    response.sendError(405,"HTTP GET not supported, use POST instead");
+    response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED,"HTTP GET not supported, use POST instead");
   }
 
   /**
@@ -103,6 +103,9 @@ public class XmlRpcServlet extends HttpServlet
 
 /**********************************************************************
  * $Log: XmlRpcServlet.java,v $
+ * Revision 1.2  2008/04/10 11:17:13  willuhn
+ * @C HTTP-Code via Konstante
+ *
  * Revision 1.1  2008/04/04 00:17:13  willuhn
  * @N Apache XML-RPC von 3.0 auf 3.1 aktualisiert
  * @N jameica.xmlrpc ist jetzt von jameica.webadmin abhaengig
