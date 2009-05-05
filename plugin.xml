@@ -3,8 +3,8 @@
 <plugin name="jameica.xmlrpc" version="1.1" class="de.willuhn.jameica.xmlrpc.Plugin">
 
   <description>Plugin, über das Jameica-Services via XML-RPC verfügbar gemacht werden können</description>
-  <url>https://www.willuhn.de/projects/jameica/releases/nightly/jameica.xmlrpc-1.1-nightly.zip</url>
-  <homepage>http://www.willuhn.de/projects/jameica</homepage>
+  <url>https://www.willuhn.de/products/jameica/releases/nightly/jameica.xmlrpc-1.1-nightly.zip</url>
+  <homepage>http://www.willuhn.de/products/jameica/extensions.php#jameica.xmlrpc</homepage>
   <license>GPL - http://www.gnu.org/copyleft/gpl.html</license>
 
   <requires jameica="1.7+">
