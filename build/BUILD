@@ -1,6 +1,6 @@
 #Build Number for ANT. Do not edit!
-#Mon Sep 13 18:42:33 CEST 2010
-build.number=104
+#Thu Nov 04 11:40:37 CET 2010
+build.number=105
 >>>>>>>=1.65
-<<<<<<<=BUILD
 =\=\=\=\=\=\=
+<<<<<<<=BUILD
