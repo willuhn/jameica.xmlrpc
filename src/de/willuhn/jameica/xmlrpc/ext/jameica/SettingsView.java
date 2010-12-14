@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.12 $
- * $Date: 2008/04/04 00:17:14 $
+ * $Revision: 1.13 $
+ * $Date: 2010/12/14 16:02:01 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -46,19 +46,13 @@ import de.willuhn.util.I18N;
  */
 public class SettingsView implements Extension
 {
+  private final static I18N i18n = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
+
   private CheckboxInput name  = null;
   private TablePart services  = null;
 
-  private I18N i18n = null;
   private MessageConsumer consumer = null;
   
-  /**
-   * ct.
-   */
-  public SettingsView()
-  {
-    this.i18n = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
-  }
   /**
    * @see de.willuhn.jameica.gui.extension.Extension#extend(de.willuhn.jameica.gui.extension.Extendable)
    */
@@ -114,10 +108,9 @@ public class SettingsView implements Extension
         }
       
       });
-      tab.addCheckbox(getUseInterfaceNames(), i18n.tr("Java-Interface-Namen als XML-RPC-Namen verwenden"));
-      
       tab.addHeadline(i18n.tr("Freigegebene Services"));
-      tab.addPart(getServices());
+      getServices().paint(tab.getComposite());
+      tab.addCheckbox(getUseInterfaceNames(), i18n.tr("Java-Interface-Namen als XML-RPC-Namen verwenden"));
     }
     catch (Exception e)
     {
@@ -232,6 +225,9 @@ public class SettingsView implements Extension
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
+ * Revision 1.13  2010/12/14 16:02:01  willuhn
+ * @B Tabelle zeigte keine Scrollbalken an, wenn der Inhalt nicht reinpasst
+ *
  * Revision 1.12  2008/04/04 00:17:14  willuhn
  * @N Apache XML-RPC von 3.0 auf 3.1 aktualisiert
  * @N jameica.xmlrpc ist jetzt von jameica.webadmin abhaengig
