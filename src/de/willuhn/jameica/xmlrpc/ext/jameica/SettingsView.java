@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ext/jameica/SettingsView.java,v $
- * $Revision: 1.13 $
- * $Date: 2010/12/14 16:02:01 $
+ * $Revision: 1.14 $
+ * $Date: 2011/01/26 23:08:36 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -20,7 +20,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.TableItem;
 
-import de.willuhn.datasource.Service;
 import de.willuhn.datasource.pseudo.PseudoIterator;
 import de.willuhn.jameica.gui.extension.Extendable;
 import de.willuhn.jameica.gui.extension.Extension;
@@ -143,20 +142,6 @@ public class SettingsView implements Extension
       Logger.error("unable to apply service settings",re);
       throw new ApplicationException(i18n.tr("Fehler beim Übernehmen der freigegebenen Services"));
     }
-    
-    try
-    {
-      Logger.info("restart http listener");
-      Service listener = Application.getServiceFactory().lookup(de.willuhn.jameica.webadmin.Plugin.class,"listener.http");
-      listener.stop(true);
-      Thread.sleep(2000l); // Warten, bis der Socket wieder frei ist
-      listener.start();
-    }
-    catch (Exception e)
-    {
-      Logger.error("unable to restart listener",e);
-      throw new ApplicationException(i18n.tr("Fehler beim Neustart des Dienstes, bitte starten Sie Jameica neu"));
-    }
   }
 
   /**
@@ -225,7 +210,10 @@ public class SettingsView implements Extension
 
 /*********************************************************************
  * $Log: SettingsView.java,v $
- * Revision 1.13  2010/12/14 16:02:01  willuhn
+ * Revision 1.14  2011/01/26 23:08:36  willuhn
+ * @C Neustart des HTTP-Listeners nicht mehr noetig. Aenderungen an den Service-Freigaben werden jetzt live uebernommen
+ *
+ * Revision 1.13  2010-12-14 16:02:01  willuhn
  * @B Tabelle zeigte keine Scrollbalken an, wenn der Inhalt nicht reinpasst
  *
  * Revision 1.12  2008/04/04 00:17:14  willuhn
