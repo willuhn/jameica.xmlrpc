@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/EchoTest.java,v $
- * $Revision: 1.9 $
- * $Date: 2008/04/04 00:17:14 $
+ * $Revision: 1.10 $
+ * $Date: 2011/01/27 00:10:24 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -86,42 +86,6 @@ public class EchoTest
     System.out.println("Test 1:");
     String echo = (String) client.execute("jameica.xmlrpc.echo.echo",new String[]{"Hello World"});
     System.out.println(echo);
-
-//    // Methode "list" auf dem Service "hibiscus.xmlrpc.konto" ausfuehren.
-//    // Freigegebene Services siehe Jameica: Datei->Einstellungen->XML-RPC
-//    // Der Parameter "(Object[]) null" muss angegeben werden, auch wenn
-//    // die Methode keine Parameter erwartet.
-//    System.out.println("Test 2:");
-//    Object[] konten = (Object[]) client.execute("hibiscus.xmlrpc.konto.list",(Object[]) null);
-//    
-//    for (int i=0;i<konten.length;++i)
-//    {
-//      System.out.println(konten[i]);
-//    }
-//
-//    // Methode "list" auf dem Service "hibiscus.xmlrpc.ueberweisung" ausfuehren.
-//    System.out.println("Test 3:");
-//    Object[] ueberweisungen = (Object[]) client.execute("hibiscus.xmlrpc.ueberweisung.list",(Object[]) null);
-//    
-//    for (int i=0;i<ueberweisungen.length;++i)
-//    {
-//      System.out.println(ueberweisungen[i]);
-//    }
-//  
-//    // Neue Ueberweisung anlegen
-//    System.out.println("Test 4:");
-//    Object[] params = new Object[]
-//      {
-//        "0",                // ID des Kontos, auf dem die Ueberweisung ausgefuehrt werden soll
-//        "123456789",        // Kontonummer des Empfaengers
-//        "12345678",         // BLZ des Empfaenger-Kontos
-//        "Max Mustermann",   // Name des Empfaengers
-//        "Das ist ein Test", // Verwendungszweck
-//        new Double(1.00),   // Betrag (1,- EUR)
-//      };
-//    Object returnCode = (Object) client.execute("hibiscus.xmlrpc.ueberweisung.create",params);
-//    System.out.println(returnCode);
-//
   }
 
 
@@ -194,6 +158,11 @@ public class EchoTest
 
 /*********************************************************************
  * $Log: EchoTest.java,v $
+ * Revision 1.10  2011/01/27 00:10:24  willuhn
+ * @C Code-Cleanup
+ * @N XML-RPC-Services koennen jetzt zur Laufzeit aktiviert/deaktiviert werden, ohne den HTTP-Listener neu starten zu muessen
+ * @B es wurde nicht geprueft, ob der Service zwischenzeitlich deaktiviert wurde oder ueberhaupt gestartet war
+ *
  * Revision 1.9  2008/04/04 00:17:14  willuhn
  * @N Apache XML-RPC von 3.0 auf 3.1 aktualisiert
  * @N jameica.xmlrpc ist jetzt von jameica.webadmin abhaengig

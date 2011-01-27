@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/XmlRpcServiceDescriptorImpl.java,v $
- * $Revision: 1.5 $
- * $Date: 2008/04/04 00:17:13 $
+ * $Revision: 1.6 $
+ * $Date: 2011/01/27 00:10:24 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -19,6 +19,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import de.willuhn.datasource.GenericObject;
 import de.willuhn.datasource.Service;
+import de.willuhn.jameica.messaging.LookupService;
 import de.willuhn.jameica.plugin.AbstractPlugin;
 import de.willuhn.jameica.plugin.Manifest;
 import de.willuhn.jameica.plugin.PluginLoader;
@@ -26,6 +27,7 @@ import de.willuhn.jameica.plugin.ServiceDescriptor;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.xmlrpc.Settings;
 import de.willuhn.jameica.xmlrpc.rmi.XmlRpcServiceDescriptor;
+import de.willuhn.logging.Logger;
 
 /**
  * Container fuer die Eigenschaften eines XML-RPC-Services.
@@ -61,7 +63,24 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
    */
   public void setShared(boolean shared) throws RemoteException
   {
+    boolean current = isShared();
+
+    // Keine Aenderung am Zustand
+    if (current == shared)
+      return;
+    
     Settings.SETTINGS.setAttribute(getID() + ".shared",shared);
+
+    if (shared) // Service war vorher nicht oeffentlich, jetzt ist er es
+    {
+      Logger.info("xmlrpc service enabled: " + this.getURL());
+      LookupService.register("xmlrpc:" + this.getID(),this.getURL());
+    }
+    else // Service war vorher oeffentlich, jetzt ist er es nicht mehr
+    {
+      Logger.info("xmlrpc service disabled: " + this.getURL());
+      LookupService.unRegister("xmlrpc:" + this.getID());
+    }
   }
   
   /**
@@ -182,6 +201,11 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
 
 /*********************************************************************
  * $Log: XmlRpcServiceDescriptorImpl.java,v $
+ * Revision 1.6  2011/01/27 00:10:24  willuhn
+ * @C Code-Cleanup
+ * @N XML-RPC-Services koennen jetzt zur Laufzeit aktiviert/deaktiviert werden, ohne den HTTP-Listener neu starten zu muessen
+ * @B es wurde nicht geprueft, ob der Service zwischenzeitlich deaktiviert wurde oder ueberhaupt gestartet war
+ *
  * Revision 1.5  2008/04/04 00:17:13  willuhn
  * @N Apache XML-RPC von 3.0 auf 3.1 aktualisiert
  * @N jameica.xmlrpc ist jetzt von jameica.webadmin abhaengig
