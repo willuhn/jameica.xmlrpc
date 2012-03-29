@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<plugin name="jameica.xmlrpc" version="1.1" class="de.willuhn.jameica.xmlrpc.Plugin">
+<plugin name="jameica.xmlrpc" version="2.3.0" class="de.willuhn.jameica.xmlrpc.Plugin">
 
   <description>Plugin, über das Jameica-Services via XML-RPC verfügbar gemacht werden können</description>
   <url>https://www.willuhn.de/products/jameica/releases/nightly/jameica.xmlrpc-1.1-nightly.zip</url>
   <homepage>http://www.willuhn.de/products/jameica/extensions.php#jameica.xmlrpc</homepage>
   <license>GPL - http://www.gnu.org/copyleft/gpl.html</license>
 
-  <requires jameica="2.2.0+">
-    <import plugin="jameica.webadmin" version="1.1+"/>
+  <requires jameica="2.3.0+">
+    <import plugin="jameica.webadmin" version="2.3.0+"/>
   </requires>
 
   <classfinder>
