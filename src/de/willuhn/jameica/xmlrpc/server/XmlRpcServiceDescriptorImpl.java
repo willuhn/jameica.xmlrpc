@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/server/XmlRpcServiceDescriptorImpl.java,v $
- * $Revision: 1.7 $
- * $Date: 2012/03/28 22:28:13 $
+ * $Revision: 1.8 $
+ * $Date: 2012/03/29 20:52:19 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -21,7 +21,6 @@ import de.willuhn.datasource.GenericObject;
 import de.willuhn.datasource.Service;
 import de.willuhn.jameica.messaging.LookupService;
 import de.willuhn.jameica.plugin.Manifest;
-import de.willuhn.jameica.plugin.Plugin;
 import de.willuhn.jameica.plugin.PluginLoader;
 import de.willuhn.jameica.plugin.ServiceDescriptor;
 import de.willuhn.jameica.system.Application;
@@ -105,10 +104,9 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
   public Service getService() throws RemoteException
   {
     PluginLoader loader = Application.getPluginLoader();
-    Plugin plugin = loader.getPlugin(this.manifest.getPluginClass());
     try
     {
-      return Application.getServiceFactory().lookup(plugin.getClass(),this.service.getName());
+      return Application.getServiceFactory().lookup(loader.getPlugin(this.manifest.getPluginClass()).getClass(),this.service.getName());
     }
     catch (RemoteException re)
     {
@@ -201,6 +199,9 @@ public class XmlRpcServiceDescriptorImpl extends UnicastRemoteObject implements 
 
 /*********************************************************************
  * $Log: XmlRpcServiceDescriptorImpl.java,v $
+ * Revision 1.8  2012/03/29 20:52:19  willuhn
+ * @C Kompatibilitaet zu Jameica 2.2 wieder hergestellt
+ *
  * Revision 1.7  2012/03/28 22:28:13  willuhn
  * @N Einfuehrung eines neuen Interfaces "Plugin", welches von "AbstractPlugin" implementiert wird. Es dient dazu, kuenftig auch Jameica-Plugins zu unterstuetzen, die selbst gar keinen eigenen Java-Code mitbringen sondern nur ein Manifest ("plugin.xml") und z.Bsp. Jars oder JS-Dateien. Plugin-Autoren muessen lediglich darauf achten, dass die Jameica-Funktionen, die bisher ein Object vom Typ "AbstractPlugin" zuruecklieferten, jetzt eines vom Typ "Plugin" liefern.
  * @C "getClassloader()" verschoben von "plugin.getRessources().getClassloader()" zu "manifest.getClassloader()" - der Zugriffsweg ist kuerzer. Die alte Variante existiert weiterhin, ist jedoch als deprecated markiert.
