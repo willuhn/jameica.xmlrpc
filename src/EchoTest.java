@@ -48,6 +48,11 @@ public class EchoTest
     // Der Slash am Ende ist wichtig. Der XML-RPC-Server macht bei Bedarf
     // zwar automatisch ein HTTP-Redirect, der XML-RPC-Client versteht
     // dieses redirect jedoch nicht.
+    
+    // Wichtig: Damit das auch unter Java 7 funktioniert, muessen die
+    // "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files"
+    // installiert sein. Siehe
+    // http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html
     String url = "https://localhost:8080/xmlrpc/";
 
     // Client-Config erzeugen
@@ -106,6 +111,11 @@ public class EchoTest
     // Da Java das nicht von allein macht, muessen wir das tun: Wir implementieren
     // hierzu einen TrustManager, der alle Zertifikate akzeptiert und verwenden
     // diesen, um den SSLContext zu initialisieren.
+
+    // Damit das auch unter Java 7 funktioniert, muessen die
+    // "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files"
+    // installiert sein. Siehe
+    // http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html
     TrustManager trustAll = new X509TrustManager()
     {
        /**

@@ -1,22 +1,16 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.xmlrpc/src/de/willuhn/jameica/xmlrpc/ServletDeployer.java,v $
- * $Revision: 1.1 $
- * $Date: 2008/04/04 00:17:13 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
+ * Copyright (c) by Olaf Willuhn
  * All rights reserved
  *
  **********************************************************************/
 
 package de.willuhn.jameica.xmlrpc;
 
-import org.mortbay.jetty.security.UserRealm;
+import org.eclipse.jetty.security.LoginService;
 
 import de.willuhn.jameica.webadmin.deploy.AbstractServletDeployer;
-import de.willuhn.jameica.webadmin.server.JameicaUserRealm;
+import de.willuhn.jameica.webadmin.server.JameicaLoginService;
 import de.willuhn.jameica.xmlrpc.server.XmlRpcServlet;
 
 /**
@@ -39,17 +33,17 @@ public class ServletDeployer extends AbstractServletDeployer
   {
     return new String[]{"admin"};
   }
-
+  
   /**
-   * @see de.willuhn.jameica.webadmin.deploy.AbstractWebAppDeployer#getUserRealm()
+   * @see de.willuhn.jameica.webadmin.deploy.AbstractServletDeployer#getLoginService()
    */
-  protected UserRealm getUserRealm()
+  @Override
+  protected LoginService getLoginService()
   {
-    return new JameicaUserRealm()
+    return new JameicaLoginService()
     {
-
       /**
-       * @see de.willuhn.jameica.webadmin.server.JameicaUserRealm#getName()
+       * @see de.willuhn.jameica.webadmin.server.JameicaLoginService#getName()
        */
       public String getName()
       {
@@ -71,13 +65,3 @@ public class ServletDeployer extends AbstractServletDeployer
   }
 
 }
-
-
-/*********************************************************************
- * $Log: ServletDeployer.java,v $
- * Revision 1.1  2008/04/04 00:17:13  willuhn
- * @N Apache XML-RPC von 3.0 auf 3.1 aktualisiert
- * @N jameica.xmlrpc ist jetzt von jameica.webadmin abhaengig
- * @N jameica.xmlrpc nutzt jetzt keinen eigenen embedded Webserver mehr sondern den Jetty von jameica.webadmin mittels Servlet. Damit kann nun XML-RPC ueber den gleichen TCP-Port (8080) gemacht werden, wo auch die restlichen Webfrontends laufen -> spart einen TCP-Port und skaliert besser wegen Multi-Threading-Support in Jetty
- *
- **********************************************************************/

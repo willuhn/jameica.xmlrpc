@@ -27,6 +27,7 @@ import de.willuhn.jameica.gui.formatter.TableFormatter;
 import de.willuhn.jameica.gui.input.CheckboxInput;
 import de.willuhn.jameica.gui.internal.views.Settings;
 import de.willuhn.jameica.gui.parts.TablePart;
+import de.willuhn.jameica.gui.parts.table.FeatureSummary;
 import de.willuhn.jameica.gui.util.TabGroup;
 import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
@@ -173,7 +174,7 @@ public class SettingsView implements Extension
     this.services.setMulti(false);
     this.services.setRememberColWidths(true);
     this.services.setRememberOrder(true);
-    this.services.setSummary(false);
+    this.services.removeFeature(FeatureSummary.class);
     this.services.addColumn(i18n.tr("Plugin"),"pluginname");
     this.services.addColumn(i18n.tr("Service"),"servicename");
     this.services.setFormatter(new TableFormatter() {
