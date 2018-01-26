@@ -47,7 +47,7 @@ public class HandlerMappingImpl extends AbstractReflectiveHandlerMapping impleme
     try
     {
       //Void Methoden sollen ebenfalls registriert werden
-      this.setVoidMethodEnabled(true)
+      this.setVoidMethodEnabled(true);
     
       // Wir registrieren unseren eigenen Request-Prozessor.
       // Andernfalls wuerde das Ding fuer jeden Request eine neue Instanz
