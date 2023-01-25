@@ -7,7 +7,7 @@
 
   <description>Plugin, über das Jameica-Services via XML-RPC verfügbar gemacht werden können</description>
   <url>https://www.willuhn.de/products/jameica/releases/nightly/jameica.xmlrpc-2.11.0-nightly.zip</url>
-  <homepage validate="true">http://www.willuhn.de/products/jameica/extensions.php#jameica.xmlrpc</homepage>
+  <homepage validate="true">https://www.willuhn.de/products/jameica/extensions.php#jameica.xmlrpc</homepage>
   <license>GPL - http://www.gnu.org/copyleft/gpl.html</license>
 
   <requires jameica="2.8.0+">
